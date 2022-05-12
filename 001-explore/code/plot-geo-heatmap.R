@@ -62,18 +62,12 @@ plot.geo.heatmap_terrainr <- function(
 
     crs.object <- sf::st_crs(SF.input);
 
-    print("A-1");
-
     SF.temp <- cbind(SF.input,sf::st_coordinates(SF.input));
-
-    print("A-2");
 
     SF.temp[,'colour.index'] <- plot.geo.heatmap_to.colour.index(
         x = sf::st_drop_geometry(SF.temp[,variable])[,1],
         palette.size = nrow(DF.colours)
         );
-
-    print("A-3");
 
     SF.temp <- dplyr::left_join(
         x  = SF.temp,
@@ -81,30 +75,12 @@ plot.geo.heatmap_terrainr <- function(
         by = "colour.index"
         );
 
-    cat("\nstr(SF.temp)\n");
-    print( str(SF.temp)   );
-
-    cat("\nsummary(SF.temp)\n");
-    print( summary(SF.temp)   );
-
     SF.temp <- SF.temp[,c("X","Y","colour.hex","R","G","B")];
     SF.temp <- SF.temp[!is.na(sf::st_drop_geometry(SF.temp[,"R"])),];
 
-
-
     SF.temp <- sf::st_drop_geometry(SF.temp);
 
-    print("A-4");
-
-    cat("\nstr(SF.temp)\n");
-    print( str(SF.temp)   );
-
-    cat("\nsummary(SF.temp)\n");
-    print( summary(SF.temp)   );
-
     my.ggplot <- ggplot2::ggplot(data = NULL) + ggplot2::theme_bw();
-
-    print("A-5");
 
     # my.ggplot <- my.ggplot + ggplot2::theme(
     #     plot.subtitle = ggplot2::element_text(size = textsize.title, face = "bold")
@@ -124,11 +100,7 @@ plot.geo.heatmap_terrainr <- function(
 
     # my.ggplot <- my.ggplot + ggplot2::theme(legend.position = "none");
 
-    print("A-6");
-
     my.ggplot <- my.ggplot + ggplot2::coord_sf(crs = crs.object);
-
-    print("A-7");
 
     # range.y <- sum(range(DF.temp[,'x']) * c(-1,1));
     # range.x <- sum(range(DF.temp[,'y']) * c(-1,1));
@@ -142,8 +114,6 @@ plot.geo.heatmap_terrainr <- function(
         units    = "in",
         dpi      = dots.per.inch
         );
-
-    print("A-8");
 
     # remove(list = c('DF.temp','my.ggplot','range.lat','range.lon'));
 
