@@ -241,7 +241,13 @@ plot.geo.heatmap_terrainr <- function(
             )
         );
 
-    # my.ggplot <- my.ggplot + ggplot2::theme(legend.position = "none");
+    my.ggplot <- my.ggplot + ggplot2::theme(
+        legend.position = "none",
+        axis.title.x    = ggplot2::element_blank(),
+        axis.title.y    = ggplot2::element_blank(),
+        axis.text.x     = ggplot2::element_blank(),
+        axis.ticks.x    = ggplot2::element_blank()
+        );
 
     my.ggplot <- my.ggplot + ggplot2::coord_sf(crs = crs.object);
 
