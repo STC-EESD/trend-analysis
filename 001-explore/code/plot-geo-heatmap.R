@@ -24,41 +24,30 @@ plot.geo.heatmap <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-    print("A-1");
-
     my.geo.heatmap <- plot.geo.heatmap_terrainr(
         SF.input   = SF.input,
         variable   = variable,
         DF.colours = DF.colours
         );
 
-    print("A-2");
-
     my.density.plot <- plot.geo.heatmap_density(
         SF.input = SF.input,
         variable = variable
         );
 
-    print("A-3");
-
     my.legend <- plot.geo.heatmap_legend(
         DF.colours = DF.colours
         );
 
-    print("A-4");
-
-    ggplot2::ggsave(
-        filename = "plot-legend.png",
-        plot     = my.legend,
-        # scale  = 1,
-        width    =  3,
-        height   = 16,
-        units    = "in",
-        dpi      = dots.per.inch
-        );
-
-    print("A-4a");
+    # ggplot2::ggsave(
+    #     filename = "plot-legend.png",
+    #     plot     = my.legend,
+    #     # scale  = 1,
+    #     width    =  3,
+    #     height   = 16,
+    #     units    = "in",
+    #     dpi      = dots.per.inch
+    #     );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     inner.cowplot <- cowplot::plot_grid(
@@ -76,8 +65,6 @@ plot.geo.heatmap <- function(
         rel_widths = c(10,3)
         );
 
-    print("A-5");
-
     ggplot2::ggsave(
         filename = PNG.output,
         plot     = my.cowplot,
@@ -87,8 +74,6 @@ plot.geo.heatmap <- function(
         units    = "in",
         dpi      = dots.per.inch
         );
-
-    print("A-6");
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n",thisFunctionName,"() quits."));
