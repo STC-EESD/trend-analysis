@@ -82,7 +82,7 @@ plot.geo.heatmap <- function(
         filename = PNG.output,
         plot     = my.cowplot,
         # scale  = 1,
-        width    = 32,
+        width    = 24.5,
         height   = 16,
         units    = "in",
         dpi      = dots.per.inch
@@ -132,12 +132,11 @@ plot.geo.heatmap_legend <- function(
 
     my.ggplot <- my.ggplot + ggplot2::theme(
         axis.title.x = ggplot2::element_blank(),
-        axis.text.x  = ggplot2::element_blank(),
-        axis.ticks.x = ggplot2::element_blank(),
         axis.title.y = ggplot2::element_blank(),
-        axis.text.y  = ggplot2::element_text(size = 30, face = "bold"),
-        # axis.ticks.y = ggplot2::element_line(size = 30),
-        axis.ticks.length.y = ggplot2::unit(0.25,"in")
+        axis.text.x  = ggplot2::element_blank(),
+        axis.ticks.x = ggplot2::element_blank()
+        # axis.text.y  = ggplot2::element_blank(),
+        # axis.ticks.y = ggplot2::element_blank()
         );
 
     my.ggplot <- my.ggplot + ggplot2::theme(legend.position = "none");
@@ -194,10 +193,17 @@ plot.geo.heatmap_density <- function(
 
     my.ggplot <- my.ggplot + ggplot2::geom_density(
         data    = DF.temp,
-        mapping = ggplot2::aes(y = variable)
+        mapping = ggplot2::aes(y = variable, size = 5)
         );
 
-    # my.ggplot <- my.ggplot + ggplot2::theme(legend.position = "none");
+    my.ggplot <- my.ggplot + ggplot2::theme(
+        legend.position     = "none",
+        axis.title.x        = ggplot2::element_blank(),
+        axis.title.y        = ggplot2::element_blank(),
+        axis.text.x         = ggplot2::element_blank(),
+        axis.text.y         = ggplot2::element_text(size = 30, face = "bold"),
+        axis.ticks.length.y = ggplot2::unit(0.25,"in")
+        );
 
     return( my.ggplot );
 
