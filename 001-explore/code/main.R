@@ -76,7 +76,8 @@ summary(SF.stats.water.deficit);
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"));
 
-for ( temp.colname in numeric.colnames ) {
+# for ( temp.colname in numeric.colnames ) {
+for ( temp.colname in "TestZ" ) {
     plot.geo.heatmap(
         SF.input        = SF.stats.water.deficit,
         variable        = temp.colname,
