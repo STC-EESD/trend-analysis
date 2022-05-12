@@ -74,11 +74,15 @@ SF.stats.water.deficit <- getData.ts.stats(
 summary(SF.stats.water.deficit);
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-plot.geo.heatmap(
-    SF.input      = SF.stats.water.deficit,
-    variable      = "TestZ",
-    dots.per.inch = 300
-    );
+numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"));
+
+for ( temp.colname in numeric.colnames ) {
+    plot.geo.heatmap(
+        SF.input      = SF.stats.water.deficit,
+        variable      = temp.colname,
+        dots.per.inch = 300
+        );
+    }
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 #   FILE.mprec.2016.09 <- file.path(data.directory,"2022-05-04-hugo","MPREC","MPREC_2016_09.bil");
