@@ -2,8 +2,6 @@
 plot.geo.heatmap <- function(
     SF.input        = NULL,
     variable        = NULL,
-    x               = 'X',
-    y               = 'Y',
     palette.size    = 255,
     palette.colours = c('Navy','Blue','Green','Yellow','Red'),
     PNG.output      = paste0('plot-geo-heatmap-',variable,'.png'),
@@ -29,14 +27,21 @@ plot.geo.heatmap <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    plot.geo.heatmap_terrainr(
-        PNG.output    = PNG.output,
-        SF.input      = SF.input,
-        variable      = variable,
-        DF.colours    = DF.colours,
-        x             = x,
-        y             = y,
-        dots.per.inch = dots.per.inch
+    my.geo.heatmap <- plot.geo.heatmap_terrainr(
+        SF.input   = SF.input,
+        variable   = variable,
+        DF.colours = DF.colours
+        );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ggplot2::ggsave(
+        filename = PNG.output,
+        plot     = my.geo.heatmap,
+        # scale  = 1,
+        width    = 16,
+        height   = 16,
+        units    = "in",
+        dpi      = dots.per.inch
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -48,13 +53,9 @@ plot.geo.heatmap <- function(
 
 ##################################################
 plot.geo.heatmap_terrainr <- function(
-    PNG.output    = NULL,
-    SF.input      = NULL,
-    variable      = NULL,
-    DF.colours    = NULL,
-    x             = NULL,
-    y             = NULL,
-    dots.per.inch = NULL
+    SF.input   = NULL,
+    variable   = NULL,
+    DF.colours = NULL
     ) {
 
     require(ggplot2);
@@ -105,19 +106,19 @@ plot.geo.heatmap_terrainr <- function(
     # range.y <- sum(range(DF.temp[,'x']) * c(-1,1));
     # range.x <- sum(range(DF.temp[,'y']) * c(-1,1));
 
-    ggplot2::ggsave(
-        filename = PNG.output,
-        plot     = my.ggplot,
-        # scale  = 1,
-        width    = 16,
-        height   = 16, # 16 * (range.y/range.x),
-        units    = "in",
-        dpi      = dots.per.inch
-        );
+    # ggplot2::ggsave(
+    #     filename = PNG.output,
+    #     plot     = my.ggplot,
+    #     # scale  = 1,
+    #     width    = 16,
+    #     height   = 16, # 16 * (range.y/range.x),
+    #     units    = "in",
+    #     dpi      = dots.per.inch
+    #     );
 
     # remove(list = c('DF.temp','my.ggplot','range.lat','range.lon'));
 
-    return( NULL );
+    return( my.ggplot );
 
     }
 
