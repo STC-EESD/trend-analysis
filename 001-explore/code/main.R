@@ -78,9 +78,11 @@ numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"
 
 for ( temp.colname in numeric.colnames ) {
     plot.geo.heatmap(
-        SF.input      = SF.stats.water.deficit,
-        variable      = temp.colname,
-        dots.per.inch = 300
+        SF.input        = SF.stats.water.deficit,
+        variable        = temp.colname,
+        palette.size    = 1000,
+        # palette.colours = c('Black','White','Orange'), # c('Navy','Black','Orange')
+        dots.per.inch   = 300
         );
     }
 
