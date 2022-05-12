@@ -69,7 +69,7 @@ plot.geo.heatmap <- function(
         filename = PNG.output,
         plot     = my.cowplot,
         # scale  = 1,
-        width    = 24.75,
+        width    = 25,
         height   = 16,
         units    = "in",
         dpi      = dots.per.inch
