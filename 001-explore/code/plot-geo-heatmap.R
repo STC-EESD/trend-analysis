@@ -16,15 +16,15 @@ plot.geo.heatmap <- function(
     require(terrainr);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    FUN.colours <- grDevices::colorRampPalette(palette.colours);
-    DF.colours  <- data.frame(
-        colour.index = seq(0,palette.size),
-        colour.hex   = FUN.colours(1+palette.size)
+    DF.colours <- plot.geo.heatmap_DF.colors(
+        SF.input        = SF.input,
+        variable        = variable,
+        palette.size    = palette.size,
+        palette.colours = palette.colours
         );
-    DF.colours <- cbind(
-        DF.colours,
-        colorspace::hex2RGB(DF.colours[,'colour.hex'])@coords
-        );
+
+    cat("\nDF.colours\n");
+    print( DF.colours   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.geo.heatmap <- plot.geo.heatmap_terrainr(
@@ -33,12 +33,24 @@ plot.geo.heatmap <- function(
         DF.colours = DF.colours
         );
 
+    my.density.plot <- plot.geo.heatmap_density(
+        SF.input = SF.input,
+        variable = variable
+        );
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    my.cowplot <- cowplot::plot_grid(
+        my.geo.heatmap,
+        my.density.plot,
+        nrow       = 1,
+        rel_widths = c(2,1)
+        );
+
     ggplot2::ggsave(
         filename = PNG.output,
-        plot     = my.geo.heatmap,
+        plot     = my.cowplot,
         # scale  = 1,
-        width    = 16,
+        width    = 32,
         height   = 16,
         units    = "in",
         dpi      = dots.per.inch
@@ -52,6 +64,63 @@ plot.geo.heatmap <- function(
     }
 
 ##################################################
+plot.geo.heatmap_DF.colors <- function(
+    SF.input        = NULL,
+    variable        = NULL,
+    palette.size    = NULL,
+    palette.colours = NULL
+    ) {
+    temp.range  <- range(sf::st_drop_geometry(SF.input[,variable]), na.rm = TRUE);
+    step.size   <- sum( c(-1,1) * temp.range ) / palette.size;
+    temp.values <- seq(temp.range[1],temp.range[2],step.size);
+    FUN.colours <- grDevices::colorRampPalette(palette.colours);
+    DF.colours  <- data.frame(
+        colour.index = seq(0,palette.size),
+        value        = temp.values,
+        colour.hex   = FUN.colours(1+palette.size)
+        );
+    DF.colours <- cbind(
+        DF.colours,
+        colorspace::hex2RGB(DF.colours[,'colour.hex'])@coords
+        );
+    return( DF.colours );
+    }
+
+plot.geo.heatmap_density <- function(
+    SF.input = NULL,
+    variable = NULL
+    ) {
+
+    require(ggplot2);
+
+    DF.temp <- sf::st_drop_geometry(cbind(SF.input,sf::st_coordinates(SF.input)));
+    DF.temp <- DF.temp[,c("X","Y",variable)];
+    DF.temp <- DF.temp[!is.na(DF.temp[,variable]),];
+
+    colnames(DF.temp) <- gsub(
+        x           = colnames(DF.temp),
+        pattern     = variable,
+        replacement = "variable"
+        );
+
+    my.ggplot <- ggplot2::ggplot(data = NULL) + ggplot2::theme_bw();
+
+    # my.ggplot <- my.ggplot + ggplot2::theme(
+    #     plot.subtitle = ggplot2::element_text(size = textsize.title, face = "bold")
+    #     );
+    # my.ggplot <- my.ggplot + ggplot2::labs(title = NULL, subtitle = year);
+
+    my.ggplot <- my.ggplot + ggplot2::geom_density(
+        data    = DF.temp,
+        mapping = ggplot2::aes(y = variable)
+        );
+
+    # my.ggplot <- my.ggplot + ggplot2::theme(legend.position = "none");
+
+    return( my.ggplot );
+
+    }
+
 plot.geo.heatmap_terrainr <- function(
     SF.input   = NULL,
     variable   = NULL,
