@@ -23,28 +23,60 @@ plot.geo.heatmap <- function(
         palette.colours = palette.colours
         );
 
-    cat("\nDF.colours\n");
-    print( DF.colours   );
-
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+
+    print("A-1");
+
     my.geo.heatmap <- plot.geo.heatmap_terrainr(
         SF.input   = SF.input,
         variable   = variable,
         DF.colours = DF.colours
         );
 
+    print("A-2");
+
     my.density.plot <- plot.geo.heatmap_density(
         SF.input = SF.input,
         variable = variable
         );
 
+    print("A-3");
+
+    my.legend <- plot.geo.heatmap_legend(
+        DF.colours = DF.colours
+        );
+
+    print("A-4");
+
+    ggplot2::ggsave(
+        filename = "plot-legend.png",
+        plot     = my.legend,
+        # scale  = 1,
+        width    =  3,
+        height   = 16,
+        units    = "in",
+        dpi      = dots.per.inch
+        );
+
+    print("A-4a");
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.cowplot <- cowplot::plot_grid(
-        my.geo.heatmap,
+    inner.cowplot <- cowplot::plot_grid(
+        my.legend,
         my.density.plot,
         nrow       = 1,
-        rel_widths = c(2,1)
+        align      = "h",
+        rel_widths = c(1,2)
         );
+
+    my.cowplot <- cowplot::plot_grid(
+        my.geo.heatmap,
+        inner.cowplot,
+        nrow       = 1,
+        rel_widths = c(10,3)
+        );
+
+    print("A-5");
 
     ggplot2::ggsave(
         filename = PNG.output,
@@ -56,6 +88,8 @@ plot.geo.heatmap <- function(
         dpi      = dots.per.inch
         );
 
+    print("A-6");
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n",thisFunctionName,"() quits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
@@ -64,6 +98,54 @@ plot.geo.heatmap <- function(
     }
 
 ##################################################
+plot.geo.heatmap_legend <- function(
+    DF.colours = NULL
+    ) {
+
+    require(ggplot2);
+
+    DF.temp <- DF.colours[,c('value','colour.hex')];
+
+    cat("\nstr(DF.temp)\n");
+    print( str(DF.temp)   );
+
+    cat("\nsummary(DF.temp)\n");
+    print( summary(DF.temp)   );
+
+    my.ggplot <- ggplot2::ggplot(data = NULL) + ggplot2::theme_bw();
+
+    # my.ggplot <- my.ggplot + ggplot2::theme(
+    #     plot.subtitle = ggplot2::element_text(size = textsize.title, face = "bold")
+    #     );
+    # my.ggplot <- my.ggplot + ggplot2::labs(title = NULL, subtitle = year);
+
+    my.ggplot <- my.ggplot + ggplot2::geom_segment(
+        data    = DF.temp,
+        mapping = ggplot2::aes(
+            x     = -0.5,
+            y     = value,
+            xend  =  0.5,
+            yend  = value
+            ),
+        color = DF.temp$colour.hex
+        );
+
+    my.ggplot <- my.ggplot + ggplot2::theme(
+        axis.title.x = ggplot2::element_blank(),
+        axis.text.x  = ggplot2::element_blank(),
+        axis.ticks.x = ggplot2::element_blank(),
+        axis.title.y = ggplot2::element_blank(),
+        axis.text.y  = ggplot2::element_text(size = 30, face = "bold"),
+        # axis.ticks.y = ggplot2::element_line(size = 30),
+        axis.ticks.length.y = ggplot2::unit(0.25,"in")
+        );
+
+    my.ggplot <- my.ggplot + ggplot2::theme(legend.position = "none");
+
+    return( my.ggplot );
+
+    }
+
 plot.geo.heatmap_DF.colors <- function(
     SF.input        = NULL,
     variable        = NULL,
