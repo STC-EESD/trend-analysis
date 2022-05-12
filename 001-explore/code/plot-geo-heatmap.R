@@ -25,7 +25,7 @@ plot.geo.heatmap <- function(
         );
     DF.colours <- cbind(
         DF.colours,
-        255 * (colorspace::hex2RGB(DF.colours[,'colour.hex'])@coords)
+        colorspace::hex2RGB(DF.colours[,'colour.hex'])@coords
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
