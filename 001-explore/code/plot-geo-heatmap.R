@@ -75,7 +75,7 @@ plot.geo.heatmap_terrainr <- function(
         by = "colour.index"
         );
 
-    SF.temp <- SF.temp[,c("X","Y","colour.hex","R","G","B")];
+    SF.temp <- SF.temp[,c("X","Y","R","G","B")];
     SF.temp <- SF.temp[!is.na(sf::st_drop_geometry(SF.temp[,"R"])),];
 
     SF.temp <- sf::st_drop_geometry(SF.temp);
