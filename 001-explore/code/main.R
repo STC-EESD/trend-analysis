@@ -78,14 +78,18 @@ numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"
 
 for ( temp.colname in numeric.colnames ) {
 
-    palette.mid.point     <- 0;
+    palette.mid.point <- 0;
+
     # palette.colours = c('Navy','Blue','Green','Yellow','Red'),
 
     # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
     # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
 
-    upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
-    lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
+    # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
+    # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
+
+    upper.palette.colours <- c('green','green','yellow','orange','red','red');
+    lower.palette.colours <- c('navy','navy','blue','blue','green','green');
 
     if ( temp.colname == "PValue" ) {
         palette.mid.point     <- 0.05;
