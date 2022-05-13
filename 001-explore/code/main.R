@@ -79,8 +79,8 @@ numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"
 for ( temp.colname in numeric.colnames ) {
 
     palette.mid.point     <- 0;
-    upper.palette.colours <- c('grey25','grey25','orange');
-    lower.palette.colours <- c('cyan','grey25','grey25');
+    upper.palette.colours <- c('grey25','orange');
+    lower.palette.colours <- c('cyan','grey25');
 
     if ( temp.colname == "PValue" ) {
         palette.mid.point     <- 0.05;
