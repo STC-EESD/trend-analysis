@@ -248,14 +248,10 @@ plot.geo.heatmap_terrainr <- function(
 
     SF.temp <- cbind(SF.input,sf::st_coordinates(SF.input));
 
-    print("A-1");
-
     SF.temp[,'colour.index'] <- plot.geo.heatmap_to.colour.index(
         x          = sf::st_drop_geometry(SF.temp[,variable])[,1],
         DF.colours = DF.colours
         );
-
-    print("A-2");
 
     SF.temp <- dplyr::left_join(
         x  = SF.temp,
