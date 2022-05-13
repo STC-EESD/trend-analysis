@@ -1,5 +1,6 @@
 
 plot.geo.heatmap <- function(
+    data.set              = NULL,
     SF.input              = NULL,
     variable              = NULL,
     palette.mid.point     = NULL,
@@ -8,7 +9,7 @@ plot.geo.heatmap <- function(
     lower.palette.colours = c('cyan','black'),
     upper.palette.size    = 255,
     lower.palette.size    = 255,
-    PNG.output            = paste0('plot-geo-heatmap-',variable,'.png'),
+    PNG.output            = paste0('plot-geo-heatmap-',data.set,'-',variable,'.png'),
     dots.per.inch         = 300
     ) {
 
@@ -171,6 +172,7 @@ plot.geo.heatmap_DF.colors <- function(
         value        = lower.values,
         colour.hex   = grDevices::colorRampPalette(lower.palette.colours)(length(lower.values))
         );
+
     DF.lower.colours <- cbind(
         DF.lower.colours,
         colorspace::hex2RGB(DF.lower.colours[,'colour.hex'])@coords
@@ -181,6 +183,7 @@ plot.geo.heatmap_DF.colors <- function(
         value        = upper.values,
         colour.hex   = grDevices::colorRampPalette(upper.palette.colours)(length(upper.values))
         );
+
     DF.upper.colours <- cbind(
         DF.upper.colours,
         colorspace::hex2RGB(DF.upper.colours[,'colour.hex'])@coords
