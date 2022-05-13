@@ -73,6 +73,11 @@ getData.ts.stats <- function(
             );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        SF.output <- getData.ts.stats_recast.columns(
+            SF.input = SF.output
+            );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         arrow::write_parquet(
             sink = parquet.output,
             x    = SF.output
@@ -88,3 +93,15 @@ getData.ts.stats <- function(
     }
 
 ##################################################
+getData.ts.stats_recast.columns <- function(
+    SF.input = NULL
+    ) {
+    SF.output <- SF.input;
+    numeric.colnames <- setdiff(colnames(SF.output),c("pointID","Shape"));
+    for ( temp.colname in numeric.colnames ) {
+        if ( "character" == typeof(unlist(SF.output[,temp.colname])) ) {
+            SF.output[,temp.colname] <- as.numeric(unlist(sf::st_drop_geometry(SF.output[,temp.colname])))
+            }
+        }
+    return( SF.output );
+    }
