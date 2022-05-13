@@ -77,13 +77,28 @@ summary(SF.stats.water.deficit);
 numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"));
 
 for ( temp.colname in numeric.colnames ) {
+
+    palette.mid.point     <- 0;
+    upper.palette.colours <- c('black','orange');
+    lower.palette.colours <- c('cyan','black');
+
+    if ( temp.colname == "PValue" ) {
+        palette.mid.point     <- 0.05;
+        upper.palette.colours <- c('black','black');
+        lower.palette.colours <- c('orange','black');
+        }
+
     plot.geo.heatmap(
-        SF.input        = SF.stats.water.deficit,
-        variable        = temp.colname,
-        palette.size    = 1000,
-        # palette.colours = c('Black','White','Orange'), # c('Navy','Black','Orange')
-        dots.per.inch   = 300
+        SF.input              = SF.stats.water.deficit,
+        variable              = temp.colname,
+        palette.mid.point     = palette.mid.point,
+        upper.palette.colours = upper.palette.colours,
+        lower.palette.colours = lower.palette.colours,
+        upper.palette.size    = 1000,
+        lower.palette.size    = 1000,
+        dots.per.inch         = 300
         );
+
     }
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###

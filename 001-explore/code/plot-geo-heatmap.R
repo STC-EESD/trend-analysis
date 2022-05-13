@@ -1,11 +1,15 @@
 
 plot.geo.heatmap <- function(
-    SF.input        = NULL,
-    variable        = NULL,
-    palette.size    = 255,
-    palette.colours = c('Navy','Blue','Green','Yellow','Red'),
-    PNG.output      = paste0('plot-geo-heatmap-',variable,'.png'),
-    dots.per.inch   = 300
+    SF.input              = NULL,
+    variable              = NULL,
+    palette.mid.point     = NULL,
+    # palette.colours = c('Navy','Blue','Green','Yellow','Red'),
+    upper.palette.colours = c('black','orange'),
+    lower.palette.colours = c('cyan','black'),
+    upper.palette.size    = 255,
+    lower.palette.size    = 255,
+    PNG.output            = paste0('plot-geo-heatmap-',variable,'.png'),
+    dots.per.inch         = 300
     ) {
 
     thisFunctionName <- "plot.geo.heatmap";
@@ -17,17 +21,26 @@ plot.geo.heatmap <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.colours <- plot.geo.heatmap_DF.colors(
-        SF.input        = SF.input,
-        variable        = variable,
-        palette.size    = palette.size,
-        palette.colours = palette.colours
+        SF.input              = SF.input,
+        variable              = variable,
+        palette.mid.point     = palette.mid.point,
+        upper.palette.colours = upper.palette.colours,
+        lower.palette.colours = lower.palette.colours,
+        upper.palette.size    = upper.palette.size,
+        lower.palette.size    = lower.palette.size
         );
+
+    cat("\nsummary(DF.colours)\n");
+    print( summary(DF.colours)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     my.geo.heatmap <- plot.geo.heatmap_terrainr(
-        SF.input   = SF.input,
-        variable   = variable,
-        DF.colours = DF.colours
+        SF.input           = SF.input,
+        variable           = variable,
+        DF.colours         = DF.colours,
+        palette.mid.point  = palette.mid.point,
+        upper.palette.size = upper.palette.size,
+        lower.palette.size = lower.palette.size
         );
 
     my.density.plot <- plot.geo.heatmap_density(
@@ -131,25 +144,50 @@ plot.geo.heatmap_legend <- function(
     }
 
 plot.geo.heatmap_DF.colors <- function(
-    SF.input        = NULL,
-    variable        = NULL,
-    palette.size    = NULL,
-    palette.colours = NULL
+    SF.input              = NULL,
+    variable              = NULL,
+    palette.mid.point     = NULL,
+    upper.palette.colours = NULL,
+    lower.palette.colours = NULL,
+    upper.palette.size    = NULL,
+    lower.palette.size    = NULL
     ) {
-    temp.range  <- range(sf::st_drop_geometry(SF.input[,variable]), na.rm = TRUE);
-    step.size   <- sum( c(-1,1) * temp.range ) / palette.size;
-    temp.values <- seq(temp.range[1],temp.range[2],step.size);
-    FUN.colours <- grDevices::colorRampPalette(palette.colours);
-    DF.colours  <- data.frame(
-        colour.index = seq(0,palette.size),
-        value        = temp.values,
-        colour.hex   = FUN.colours(1+palette.size)
+
+    if ( is.null(palette.mid.point)) {
+        palette.mid.point <- median(sf::st_drop_geometry(SF.input[,variable]), na.rm = TRUE);
+        }
+
+    full.range <- range(sf::st_drop_geometry(SF.input[,variable]), na.rm = TRUE);
+
+    lower.range  <- c(full.range[1],palette.mid.point);
+    lower.values <- seq(lower.range[1], lower.range[2], length.out = lower.palette.size);
+    lower.values <- lower.values[seq(1,length(lower.values)-1)];
+
+    upper.range  <- c(palette.mid.point,full.range[2]);
+    upper.values <- seq(upper.range[1], upper.range[2], length.out = upper.palette.size);
+
+    DF.lower.colours  <- data.frame(
+        colour.index = seq(1,length(lower.values)),
+        value        = lower.values,
+        colour.hex   = grDevices::colorRampPalette(lower.palette.colours)(length(lower.values))
         );
-    DF.colours <- cbind(
-        DF.colours,
-        colorspace::hex2RGB(DF.colours[,'colour.hex'])@coords
+    DF.lower.colours <- cbind(
+        DF.lower.colours,
+        colorspace::hex2RGB(DF.lower.colours[,'colour.hex'])@coords
         );
-    return( DF.colours );
+
+    DF.upper.colours  <- data.frame(
+        colour.index = lower.palette.size + seq(0,length(upper.values)-1),
+        value        = upper.values,
+        colour.hex   = grDevices::colorRampPalette(upper.palette.colours)(length(upper.values))
+        );
+    DF.upper.colours <- cbind(
+        DF.upper.colours,
+        colorspace::hex2RGB(DF.upper.colours[,'colour.hex'])@coords
+        );
+
+    return( rbind(DF.lower.colours,DF.upper.colours) );
+
     }
 
 plot.geo.heatmap_density <- function(
@@ -195,9 +233,12 @@ plot.geo.heatmap_density <- function(
     }
 
 plot.geo.heatmap_terrainr <- function(
-    SF.input   = NULL,
-    variable   = NULL,
-    DF.colours = NULL
+    SF.input           = NULL,
+    variable           = NULL,
+    DF.colours         = NULL,
+    palette.mid.point  = NULL,
+    upper.palette.size = NULL,
+    lower.palette.size = NULL
     ) {
 
     require(ggplot2);
@@ -207,10 +248,14 @@ plot.geo.heatmap_terrainr <- function(
 
     SF.temp <- cbind(SF.input,sf::st_coordinates(SF.input));
 
+    print("A-1");
+
     SF.temp[,'colour.index'] <- plot.geo.heatmap_to.colour.index(
-        x = sf::st_drop_geometry(SF.temp[,variable])[,1],
-        palette.size = nrow(DF.colours)
+        x          = sf::st_drop_geometry(SF.temp[,variable])[,1],
+        DF.colours = DF.colours
         );
+
+    print("A-2");
 
     SF.temp <- dplyr::left_join(
         x  = SF.temp,
@@ -271,10 +316,17 @@ plot.geo.heatmap_terrainr <- function(
     }
 
 plot.geo.heatmap_to.colour.index <- function(
-    x            = NULL,
-    palette.size = NULL
+    x          = NULL,
+    DF.colours = NULL
     ) {
-    y <- (x - min(x, na.rm = TRUE)) / sum(c(-1,1) * range(x, na.rm = TRUE), na.rm = TRUE);
-    y <- ceiling(palette.size * y);
-    return( y );
+    DF.temp <- data.frame(
+        x     = x,
+        dummy = rep(NA,length(x))
+        );
+    DF.temp[,'color.index'] <- apply(
+        X      = DF.temp,
+        MARGIN = 1,
+        FUN    = function(z) { return( min(which(z[1] < DF.colours$value)) ) }
+        );
+    return( as.numeric(DF.temp[,'color.index']) );
     }
