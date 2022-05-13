@@ -101,7 +101,7 @@ for ( temp.data.set in data.sets ) {
             upper.palette.colours <- c('grey25','grey25');
             lower.palette.colours <- c('orange','grey25');
         } else if ( temp.data.set == "WaterStress" & temp.colname == "TestZ" ) {
-            palette.mid.point <- 1.25;
+            palette.mid.point <- -1.25;
             }
 
         plot.geo.heatmap(
