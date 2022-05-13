@@ -89,7 +89,7 @@ for ( temp.colname in numeric.colnames ) {
     # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
 
     upper.palette.colours <- c('green','green','yellow','orange','red','red');
-    lower.palette.colours <- c('violet','navy','navy','blue','blue','green');
+    lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
 
     if ( temp.colname == "PValue" ) {
         palette.mid.point     <- 0.05;
