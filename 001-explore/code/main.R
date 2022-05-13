@@ -65,50 +65,60 @@ dir.aridity <- file.path(data.directory,"2022-05-06-aridity","From_Zdenek");
 GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb")
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-SF.stats.water.deficit <- getData.ts.stats(
-    GDB.SpatialData = GDB.SpatialData,
-    CSV.ts.stats    = file.path(dir.aridity,"WaterDeficit.csv"),
-    parquet.output  = "data-water-deficit.parquet"
-    );
+data.sets <- c("WaterDeficit","WaterStress");
 
-summary(SF.stats.water.deficit);
+for ( temp.data.set in data.sets ) {
 
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-numeric.colnames <- setdiff(colnames(SF.stats.water.deficit),c("pointID","Shape"));
+    cat("\n### processing:",temp.data.set,"\n");
 
-for ( temp.colname in numeric.colnames ) {
-
-    palette.mid.point <- 0;
-
-    # palette.colours = c('Navy','Blue','Green','Yellow','Red'),
-
-    # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
-    # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
-
-    # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
-    # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
-
-    upper.palette.colours <- c('green','green','yellow','orange','red','red');
-    lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
-
-    if ( temp.colname == "PValue" ) {
-        palette.mid.point     <- 0.05;
-        upper.palette.colours <- c('grey25','grey25');
-        lower.palette.colours <- c('orange','grey25');
-        }
-
-    plot.geo.heatmap(
-        SF.input              = SF.stats.water.deficit,
-        variable              = temp.colname,
-        palette.mid.point     = palette.mid.point,
-        upper.palette.colours = upper.palette.colours,
-        lower.palette.colours = lower.palette.colours,
-        upper.palette.size    = 1000,
-        lower.palette.size    = 1000,
-        dots.per.inch         = 300
+    SF.stats <- getData.ts.stats(
+        GDB.SpatialData = GDB.SpatialData,
+        CSV.ts.stats    = file.path(dir.aridity,paste0(temp.data.set,".csv")),
+        parquet.output  = paste0("data-",temp.data.set,".parquet")
         );
 
+    cat("\nstr(SF.stats)\n");
+    print( str(SF.stats)   );
+
+    numeric.colnames <- setdiff(colnames(SF.stats),c("pointID","Shape"));
+    for ( temp.colname in numeric.colnames ) {
+
+        palette.mid.point <- 0;
+
+        # palette.colours = c('Navy','Blue','Green','Yellow','Red'),
+
+        # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
+        # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
+
+        # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
+        # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
+
+        upper.palette.colours <- c('green','green','yellow','orange','red','red');
+        lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
+
+        if ( temp.colname == "PValue" ) {
+            palette.mid.point     <- 0.05;
+            upper.palette.colours <- c('grey25','grey25');
+            lower.palette.colours <- c('orange','grey25');
+            }
+
+        plot.geo.heatmap(
+            data.set              = temp.data.set,
+            SF.input              = SF.stats,
+            variable              = temp.colname,
+            palette.mid.point     = palette.mid.point,
+            upper.palette.colours = upper.palette.colours,
+            lower.palette.colours = lower.palette.colours,
+            upper.palette.size    = 1000,
+            lower.palette.size    = 1000,
+            dots.per.inch         = 300
+            );
+
+        }
+
     }
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 #   FILE.mprec.2016.09 <- file.path(data.directory,"2022-05-04-hugo","MPREC","MPREC_2016_09.bil");
