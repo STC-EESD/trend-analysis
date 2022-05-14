@@ -18,19 +18,27 @@ getData.water <- function(
     require(dplyr);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.vars <- getData.water_get.list.vars(
+    temp.list <- getData.water_get.list.vars(
         DF.metadata    = DF.metadata,
         date.reference = date.reference,
         dir.water      = dir.water
         );
 
-    cat("\nstr(list.vars)\n");
-    print( str(list.vars)   );
+    cat("\nstr(temp.list[['DF.dates']])\n");
+    print( str(temp.list[['DF.dates']])   );
+
+    cat("\nsummary(temp.list[['DF.dates']])\n");
+    print( summary(temp.list[['DF.dates']])   );
+
+    arrow::write_parquet(x = temp.list[['DF.dates']], sink = "DF-dates.parquet");
+
+    cat("\nstr(temp.list[['list.vars']])\n");
+    print( str(temp.list[['list.vars']])   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     output.ncdf4.object <- ncdf4::nc_create(
         filename = ncdf4.output,
-        vars     = list.vars
+        vars     = temp.list[['list.vars']]
         );
 
     my.crs <- getData.water_get.crs(
@@ -49,14 +57,15 @@ getData.water <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # for ( metadatum.index in seq(1,nrow(DF.metadata)) ) {
-    #     getData.water_put.variable <- function(
-    #         dir.water     = dir.water,
-    #         ncdf4.object  = output.ncdf4.object,
-    #         variable      = DF.metadata[metadatum.index,'variable'     ],
-    #         sub.directory = DF.metadata[metadatum.index,'sub.directory']
-    #         );
-    #     }
+    for ( metadatum.index in seq(1,nrow(DF.metadata)) ) {
+        getData.water_put.variable(
+            dir.water     = dir.water,
+            ncdf4.object  = output.ncdf4.object,
+            variable      = DF.metadata[metadatum.index,'variable'     ],
+            sub.directory = DF.metadata[metadatum.index,'sub.directory'],
+            DF.dates      = temp.list[['DF.dates']]
+            );
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ncdf4::nc_close(output.ncdf4.object);
@@ -83,20 +92,52 @@ getData.water_put.variable <- function(
     dir.water     = NULL,
     ncdf4.object  = NULL,
     variable      = NULL,
-    sub.directory = NULL
+    sub.directory = NULL,
+    DF.dates      = NULL
     ) {
 
     raster.files <- list.files(path = file.path(dir.water,sub.directory), pattern = "\\.bil");
-    for ( temp.raster in raster.files ) {
+    for ( temp.raster.file in raster.files ) {
 
+        cat("\ntemp.raster.file\n");
+        print( temp.raster.file   );
 
-        # ncdf4::ncvar_put(
-        #     nc    = ncdf4.object,
-        #     varid = variable,
-        #     vals  = DF.temp,
-        #     start = c(1,1,score.index),
-        #     count = c(n.lats,n.lons,1)
-        #     );
+        n.x <- ncdf4.object[['dim']][['x']][['len']];
+        n.y <- ncdf4.object[['dim']][['y']][['len']];
+
+        temp.month <- unique(stringr::str_extract(string = temp.raster.file, pattern = "_[0-9]{4}_[0-9]{2}"));
+        temp.month <- gsub(x = temp.month, pattern = "^_", replacement = "" );
+        temp.month <- gsub(x = temp.month, pattern = "_",  replacement = "-");
+        temp.date.string  <- paste0(temp.month,"-01");
+        date.index <- DF.dates[DF.dates[,'date.string'] == temp.date.string,'date.index'];
+
+        cat("\nDF.dates[date.index,]\n");
+        print( DF.dates[date.index,]   );
+
+        temp.raster <- raster::raster(file.path(dir.water,sub.directory,temp.raster.file));
+        DF.tidy     <- cbind(raster::coordinates(temp.raster),raster::getValues(temp.raster));
+
+        ### !!! It is crucial to order DF.tidy, first by 'y', then by 'x', !!!
+        ### !!! for the next two lines to work properly                    !!!
+        DF.tidy <- DF.tidy[order(DF.tidy[,'y'],DF.tidy[,'x']),];
+        DF.temp <- matrix(data = DF.tidy[,3], nrow = n.x, ncol = n.y, byrow = FALSE);
+
+        cat("\nstr(DF.tidy)\n");
+        print( str(DF.tidy)   );
+
+        cat("\nDF.tidy[1:20,]\n");
+        print( DF.tidy[1:20,]   );
+
+        cat("\nstr(DF.temp)\n");
+        print( str(DF.temp)   );
+
+        ncdf4::ncvar_put(
+            nc    = ncdf4.object,
+            varid = variable,
+            vals  = DF.temp,
+            start = c(1,  1,  date.index),
+            count = c(n.x,n.y,date.index)
+            );
 
         }
 
@@ -148,16 +189,11 @@ getData.water_get.list.vars <- function(
             date        = as.Date(x = months, tz = lubridate::tz(date.reference))
             );
         DF.dates <- DF.dates[order(DF.dates[,'date']),c('date.string','date')];
+        DF.dates[,'date.index'  ] <- seq(1,nrow(DF.dates));
         DF.dates[,'date.integer'] <- as.integer(DF.dates[,'date'] - date.reference);
         DF.dates[,'year'] <- as.integer(lubridate::year(DF.dates[,'date']));
-        DF.dates <- DF.dates[,c('year',setdiff(colnames(DF.dates),'year'))];
+        DF.dates <- DF.dates[,c('date.index',setdiff(colnames(DF.dates),'date.index'))];
         rownames(DF.dates) <- seq(1,nrow(DF.dates));
-
-        cat("\nstr(DF.dates)\n");
-        print( str(DF.dates)   );
-
-        cat("\nsummary(DF.dates)\n");
-        print( summary(DF.dates)   );
 
         dimension.time <- ncdf4::ncdim_def(
             name  = "time",
@@ -179,6 +215,6 @@ getData.water_get.list.vars <- function(
 
         }
 
-    return( list.vars );
+    return( list(DF.dates = DF.dates, list.vars = list.vars) );
 
     }
