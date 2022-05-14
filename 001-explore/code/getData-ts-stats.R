@@ -66,16 +66,29 @@ getData.ts.stats <- function(
             );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        SF.output <- dplyr::full_join(
+        SF.output <- getData.ts.stats_recast.columns(
+            SF.input = SF.output
+            );
+
+        cat("\nstr(SF.output) -- from CSV\n");
+        print( str(SF.output)   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        cat("\nsetdiff( SF.SpatialData$pointID , SF.output$pointID )\n");
+        print( setdiff( SF.SpatialData$pointID , SF.output$pointID )   );
+
+        cat("\nsetdiff( SF.output$pointID , SF.SpatialData$pointID )\n");
+        print( setdiff( SF.output$pointID , SF.SpatialData$pointID )   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        SF.output <- dplyr::inner_join(
             x  = SF.SpatialData,
             y  = SF.output,
             by = "pointID"
             );
 
-        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        SF.output <- getData.ts.stats_recast.columns(
-            SF.input = SF.output
-            );
+        cat("\nstr(SF.output) -- after inner join\n");
+        print( str(SF.output)   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         arrow::write_parquet(
@@ -100,7 +113,9 @@ getData.ts.stats_recast.columns <- function(
     numeric.colnames <- setdiff(colnames(SF.output),c("pointID","Shape"));
     for ( temp.colname in numeric.colnames ) {
         if ( "character" == typeof(unlist(SF.output[,temp.colname])) ) {
-            SF.output[,temp.colname] <- as.numeric(unlist(sf::st_drop_geometry(SF.output[,temp.colname])))
+            # SF.output[,temp.colname] <- as.numeric(unlist(sf::st_drop_geometry(SF.output[,temp.colname])));
+            SF.output[,temp.colname] <- gsub(x = SF.output[,temp.colname], pattern = "^\\.$", replacement = "NA");
+            SF.output[,temp.colname] <- as.numeric(SF.output[,temp.colname]);
             }
         }
     return( SF.output );
