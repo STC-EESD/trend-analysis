@@ -13,6 +13,16 @@ getData.water <- function(
     cat(paste0("\n# ",thisFunctionName,"() starts.\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( file.exists(ncdf4.output) ) {
+        cat("\n");
+        cat(paste0("The file ",ncdf4.output," already exists; do nothing."));
+        cat("\n");
+        cat(paste0("\n# ",thisFunctionName,"() exits."));
+        cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+        return( NULL );
+        }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(sf);
     require(arrow);
     require(dplyr);
@@ -83,7 +93,7 @@ getData.water_get.crs <- function(
     DF.metadata = NULL
     ) {
     temp.sub.directory <- DF.metadata[1,'sub.directory'];
-    temp.raster.files  <- list.files(path = file.path(dir.water,temp.sub.directory), pattern = "\\.bil");
+    temp.raster.files  <- list.files(path = file.path(dir.water,temp.sub.directory), pattern = "\\.bil$");
     temp.raster        <- raster::stack(file.path(dir.water,temp.sub.directory,temp.raster.files[1]));
     return( raster::crs(temp.raster) );
     }
@@ -96,7 +106,7 @@ getData.water_put.variable <- function(
     DF.dates      = NULL
     ) {
 
-    raster.files <- list.files(path = file.path(dir.water,sub.directory), pattern = "\\.bil");
+    raster.files <- list.files(path = file.path(dir.water,sub.directory), pattern = "\\.bil$");
     for ( temp.raster.file in raster.files ) {
 
         cat("\ntemp.raster.file\n");
@@ -165,7 +175,7 @@ getData.water_get.list.vars <- function(
         temp.sub.directory <- DF.metadata[metadatum.index,'sub.directory'];
         temp.description   <- DF.metadata[metadatum.index,'description'  ];
 
-        temp.raster.files <- list.files(path = file.path(dir.water,temp.sub.directory), pattern = "\\.bil");
+        temp.raster.files <- list.files(path = file.path(dir.water,temp.sub.directory), pattern = "\\.bil$");
         temp.raster       <- raster::stack(file.path(dir.water,temp.sub.directory,temp.raster.files[1]));
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
