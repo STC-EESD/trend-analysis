@@ -28,19 +28,38 @@ getData.water <- function(
     print( str(list.vars)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    print("A-1");
-
-    ncdf4.object.output <- ncdf4::nc_create(
+    output.ncdf4.object <- ncdf4::nc_create(
         filename = ncdf4.output,
         vars     = list.vars
         );
 
-    print("A-2");
+    my.crs <- getData.water_get.crs(
+        dir.water   = dir.water,
+        DF.metadata = DF.metadata
+        );
+
+    ncdf4::ncatt_put(
+        nc         = output.ncdf4.object,
+        varid      = 0,
+        attname    = "crs",
+        attval     = as.character(my.crs),
+        prec       = "text",
+        verbose    = FALSE,
+        definemode = FALSE
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    ncdf4::nc_close(ncdf4.object.output);
+    # for ( metadatum.index in seq(1,nrow(DF.metadata)) ) {
+    #     getData.water_put.variable <- function(
+    #         dir.water     = dir.water,
+    #         ncdf4.object  = output.ncdf4.object,
+    #         variable      = DF.metadata[metadatum.index,'variable'     ],
+    #         sub.directory = DF.metadata[metadatum.index,'sub.directory']
+    #         );
+    #     }
 
-    print("A-3");
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    ncdf4::nc_close(output.ncdf4.object);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() exits."));
@@ -50,6 +69,41 @@ getData.water <- function(
     }
 
 ##################################################
+getData.water_get.crs <- function(
+    dir.water   = NULL,
+    DF.metadata = NULL
+    ) {
+    temp.sub.directory <- DF.metadata[1,'sub.directory'];
+    temp.raster.files  <- list.files(path = file.path(dir.water,temp.sub.directory), pattern = "\\.bil");
+    temp.raster        <- raster::stack(file.path(dir.water,temp.sub.directory,temp.raster.files[1]));
+    return( raster::crs(temp.raster) );
+    }
+
+getData.water_put.variable <- function(
+    dir.water     = NULL,
+    ncdf4.object  = NULL,
+    variable      = NULL,
+    sub.directory = NULL
+    ) {
+
+    raster.files <- list.files(path = file.path(dir.water,sub.directory), pattern = "\\.bil");
+    for ( temp.raster in raster.files ) {
+
+
+        # ncdf4::ncvar_put(
+        #     nc    = ncdf4.object,
+        #     varid = variable,
+        #     vals  = DF.temp,
+        #     start = c(1,1,score.index),
+        #     count = c(n.lats,n.lons,1)
+        #     );
+
+        }
+
+    return( NULL );
+
+    }
+
 getData.water_get.list.vars <- function(
     DF.metadata    = NULL,
     date.reference = NULL,
@@ -113,9 +167,10 @@ getData.water_get.list.vars <- function(
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         list.vars[[temp.variable]] <- ncdf4::ncvar_def(
-            name  = temp.variable,
-            units = temp.units,
-            dim   = list(
+            name     = temp.variable,
+            longname = temp.description,
+            units    = temp.units,
+            dim = list(
                 x    = dimension.x,
                 y    = dimension.y,
                 time = dimension.time
