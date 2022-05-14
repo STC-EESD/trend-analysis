@@ -70,7 +70,7 @@ dir.aridity <- file.path(data.directory,"2022-05-06-aridity","From_Zdenek");
 data.water <- 'data-water';
 
 DF.metadata <- data.frame(
-    variable      = c('mp.ET', 'm.prec'),
+    variable      = c('mp.ET','m.prec'),
     units         = c('millimeter','millimeter'),
     sub.directory = c('MELAKE','MPREC'),
     description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
