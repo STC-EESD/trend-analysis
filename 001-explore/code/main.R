@@ -76,11 +76,12 @@ DF.metadata <- data.frame(
     description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
     );
 
+ncdf4.water <- "data-MELAKE-MPREC.nc";
 getData.water(
     GDB.SpatialData = GDB.SpatialData,
     dir.water       = dir.water,
     DF.metadata     = DF.metadata,
-    ncdf4.output    = "data-MELAKE-MPREC.nc"
+    ncdf4.output    = ncdf4.water
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
