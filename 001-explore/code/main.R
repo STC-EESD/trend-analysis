@@ -31,6 +31,7 @@ require(raster);
 # source supporting R code
 code.files <- c(
     "getData-ts-stats.R",
+    "getData-water.R",
     "initializePlot.R",
     "plot-geo-heatmap.R",
     "utils-rgb.R"
@@ -60,9 +61,53 @@ n.cores   <- ifelse(test = is.macOS, yes = 2, no = parallel::detectCores() - 1);
 cat(paste0("\n# n.cores = ",n.cores,"\n"));
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb")
+
+dir.water   <- file.path(data.directory,"2022-05-04-hugo");
 dir.aridity <- file.path(data.directory,"2022-05-06-aridity","From_Zdenek");
 
-GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb")
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+data.water <- 'data-water';
+
+DF.metadata <- data.frame(
+    variable      = c('mp.ET', 'm.prec'),
+    units         = c('millimeter','millimeter'),
+    sub.directory = c('MELAKE','MPREC'),
+    description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
+    );
+
+getData.water(
+    GDB.SpatialData = GDB.SpatialData,
+    dir.water       = dir.water,
+    DF.metadata     = DF.metadata,
+    ncdf4.output    = "data-MELAKE-MPREC.nc"
+    );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+
+##################################################
+print( warnings() );
+
+print( getOption('repos') );
+
+print( .libPaths() );
+
+print( sessionInfo() );
+
+print( format(Sys.time(),"%Y-%m-%d %T %Z") );
+
+stop.proc.time <- proc.time();
+print( stop.proc.time - start.proc.time );
+
+quit(save = "no");
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 data.sets <- c("WaterDeficit","WaterStress");
