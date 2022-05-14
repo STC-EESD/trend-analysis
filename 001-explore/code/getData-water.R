@@ -105,6 +105,12 @@ getData.water_put.variable <- function(
         n.x <- ncdf4.object[['dim']][['x']][['len']];
         n.y <- ncdf4.object[['dim']][['y']][['len']];
 
+        cat("\nn.x\n");
+        print( n.x   );
+
+        cat("\nn.y\n");
+        print( n.y   );
+
         temp.month <- unique(stringr::str_extract(string = temp.raster.file, pattern = "_[0-9]{4}_[0-9]{2}"));
         temp.month <- gsub(x = temp.month, pattern = "^_", replacement = "" );
         temp.month <- gsub(x = temp.month, pattern = "_",  replacement = "-");
@@ -136,7 +142,7 @@ getData.water_put.variable <- function(
             varid = variable,
             vals  = DF.temp,
             start = c(1,  1,  date.index),
-            count = c(n.x,n.y,date.index)
+            count = c(n.x,n.y,1         )
             );
 
         }
