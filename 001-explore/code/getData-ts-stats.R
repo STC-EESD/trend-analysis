@@ -65,12 +65,14 @@ getData.ts.stats <- function(
             replacement = "pointID"
             );
 
-        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        SF.output <- getData.ts.stats_recast.columns(
-            SF.input = SF.output
-            );
-
         cat("\nstr(SF.output) -- from CSV\n");
+        print( str(SF.output)   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        SF.output <- getData.ts.stats_remove.rows.with.dots(SF.input = SF.output);
+        SF.output <- getData.ts.stats_recast.columns(       SF.input = SF.output);
+
+        cat("\nstr(SF.output) -- from CSV -- after cleaning\n");
         print( str(SF.output)   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -106,6 +108,16 @@ getData.ts.stats <- function(
     }
 
 ##################################################
+getData.ts.stats_remove.rows.with.dots <- function(
+    SF.input = NULL
+    ) {
+    SF.output <- SF.input;
+    SF.output[,'has.dots'] <- apply(X = SF.output, MARGIN = 1, FUN = function(x) {any(x == ".")} );
+    SF.output <- SF.output[!SF.output[,'has.dots'],];
+    SF.output <- SF.output[,setdiff(colnames(SF.output),'has.dots')]
+    return( SF.output );
+    }
+
 getData.ts.stats_recast.columns <- function(
     SF.input = NULL
     ) {
