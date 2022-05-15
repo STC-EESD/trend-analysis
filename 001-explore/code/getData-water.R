@@ -132,6 +132,7 @@ getData.water_put.variable <- function(
 
         temp.raster <- raster::raster(file.path(dir.water,sub.directory,temp.raster.file));
         DF.tidy     <- cbind(raster::coordinates(temp.raster),raster::getValues(temp.raster));
+        DF.tidy[DF.tidy[,3] <= -32750,3] <- NA;
 
         ### !!! It is crucial to order DF.tidy, first by 'y', then by 'x', !!!
         ### !!! for the next two lines to work properly                    !!!
