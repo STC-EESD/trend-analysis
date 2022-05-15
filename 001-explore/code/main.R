@@ -107,6 +107,12 @@ colnames(SF.SpatialData) <- gsub(
 SF.SpatialData <- cbind(SF.SpatialData,sf::st_coordinates(SF.SpatialData));
 arrow::write_parquet(x = SF.SpatialData, sink = "SF-SpatialData.parquet");
 
+cat("\nstr(SF.SpatialData)\n");
+print( str(SF.SpatialData)   );
+
+cat("\nsummary(SF.SpatialData)\n");
+print( summary(SF.SpatialData)   );
+
 DF.metadata <- data.frame(
     variable      = c('deficit','stress'),
     units         = c('numeral','numeral'),
