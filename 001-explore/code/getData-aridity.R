@@ -56,15 +56,16 @@ getData.aridity <- function(
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # for ( metadatum.index in seq(1,nrow(DF.metadata)) ) {
-    #     getData.aridity_put.variable(
-    #         dir.aridity   = dir.aridity,
-    #         ncdf4.object  = output.ncdf4.object,
-    #         variable      = DF.metadata[metadatum.index,'variable'     ],
-    #         sub.directory = DF.metadata[metadatum.index,'sub.directory'],
-    #         DF.dates      = DF.dates
-    #         );
-    #     }
+    for ( metadatum.index in seq(1,nrow(DF.metadata)) ) {
+        getData.aridity_put.variable(
+            dir.aridity    = dir.aridity,
+            ncdf4.object   = output.ncdf4.object,
+            variable       = DF.metadata[metadatum.index,'variable'     ],
+            sub.directory  = DF.metadata[metadatum.index,'sub.directory'],
+            DF.coordinates = sf::st_drop_geometry(SF.SpatialData),
+            DF.dates       = DF.dates
+            );
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ncdf4::nc_close(output.ncdf4.object);
@@ -78,62 +79,82 @@ getData.aridity <- function(
 
 ##################################################
 getData.aridity_put.variable <- function(
-    dir.aridity   = NULL,
-    ncdf4.object  = NULL,
-    variable      = NULL,
-    sub.directory = NULL,
-    DF.dates      = NULL
+    dir.aridity    = NULL,
+    ncdf4.object   = NULL,
+    variable       = NULL,
+    sub.directory  = NULL,
+    DF.dates       = NULL,
+    DF.coordinates = NULL
     ) {
 
-    raster.files <- list.files(path = file.path(dir.aridity,sub.directory), pattern = "\\.bil$");
-    for ( temp.raster.file in raster.files ) {
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    n.x <- ncdf4.object[['dim']][['x']][['len']];
+    n.y <- ncdf4.object[['dim']][['y']][['len']];
 
-        cat("\ntemp.raster.file\n");
-        print( temp.raster.file   );
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.grid <- expand.grid(
+        x = ncdf4.object[['dim']][['x']][['vals']],
+        y = ncdf4.object[['dim']][['y']][['vals']]
+        );
 
-        n.x <- ncdf4.object[['dim']][['x']][['len']];
-        n.y <- ncdf4.object[['dim']][['y']][['len']];
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    txt.files <- list.files(path = file.path(dir.aridity,sub.directory), pattern = "\\.txt$");
+    for ( temp.txt.file in txt.files ) {
 
-        cat("\nn.x\n");
-        print( n.x   );
+        DF.txt <- read.csv(file.path(dir.aridity,sub.directory,temp.txt.file));
+        colnames(DF.txt) <- gsub(x = colnames(DF.txt), pattern = "pointid", replacement = "pointID");
+        date.colnames <- grep(x = colnames(DF.txt), pattern = "[0-9]{4}.[0-9]{2}", value = TRUE);
 
-        cat("\nn.y\n");
-        print( n.y   );
+        for ( temp.date.colname in date.colnames ) {
 
-        temp.month <- unique(stringr::str_extract(string = temp.raster.file, pattern = "_[0-9]{4}_[0-9]{2}"));
-        temp.month <- gsub(x = temp.month, pattern = "^_", replacement = "" );
-        temp.month <- gsub(x = temp.month, pattern = "_",  replacement = "-");
-        temp.date.string  <- paste0(temp.month,"-01");
-        date.index <- DF.dates[DF.dates[,'date.string'] == temp.date.string,'date.index'];
+            cat("\n### temp.txt.file:",temp.txt.file," temp.date.colname:",temp.date.colname,"\n");
 
-        cat("\nDF.dates[date.index,]\n");
-        print( DF.dates[date.index,]   );
+            temp.date.string <- stringr::str_extract(string = temp.date.colname, pattern = "[0-9]{4}.[0-9]{2}");
+            temp.date.string <- gsub(x = temp.date.string, pattern = "_", replacement = "-");
+            temp.date.string <- paste0(temp.date.string,"-01");
+            date.index       <- DF.dates[DF.dates[,'date.string'] == temp.date.string,'date.index'];
 
-        temp.raster <- raster::raster(file.path(dir.aridity,sub.directory,temp.raster.file));
-        DF.tidy     <- cbind(raster::coordinates(temp.raster),raster::getValues(temp.raster));
-        DF.tidy[DF.tidy[,3] <= -32750,3] <- NA;
+            cat("\ntemp.date.colname:",temp.date.colname,"\n");
+            cat("\ntemp.date.string: ",temp.date.string, "\n");
+            cat("\nDF.dates[DF.dates[,'date.string'] == temp.date.string,]\n");
+            print( DF.dates[DF.dates[,'date.string'] == temp.date.string,]   );
 
-        ### !!! It is crucial to order DF.tidy, first by 'y', then by 'x', !!!
-        ### !!! for the next two lines to work properly                    !!!
-        DF.tidy <- DF.tidy[order(DF.tidy[,'y'],DF.tidy[,'x']),];
-        DF.temp <- matrix(data = DF.tidy[,3], nrow = n.x, ncol = n.y, byrow = FALSE);
+            DF.temp <- DF.txt[,c('pointID',temp.date.colname)];
+            DF.temp <- as.data.frame(dplyr::left_join(
+                x  = DF.coordinates,
+                y  = DF.temp,
+                by = "pointID"
+                ));
 
-        cat("\nstr(DF.tidy)\n");
-        print( str(DF.tidy)   );
+            DF.temp <- as.data.frame(dplyr::left_join(
+                x  = DF.grid,
+                y  = DF.temp,
+                by = c('x','y')
+                ));
 
-        cat("\nDF.tidy[1:20,]\n");
-        print( DF.tidy[1:20,]   );
+            cat("\nsummary(DF.temp)\n");
+            print( summary(DF.temp)   );
 
-        cat("\nstr(DF.temp)\n");
-        print( str(DF.temp)   );
+            cat("\nsum(!is.na(DF.temp[,temp.date.colname]))\n");
+            print( sum(!is.na(DF.temp[,temp.date.colname]))   );
 
-        ncdf4::ncvar_put(
-            nc    = ncdf4.object,
-            varid = variable,
-            vals  = DF.temp,
-            start = c(1,  1,  date.index),
-            count = c(n.x,n.y,1         )
-            );
+            ### !!! It is crucial to order DF.tidy, first by 'y', then by 'x', !!!
+            ### !!! for the next two lines to work properly                    !!!
+            DF.temp <- DF.temp[order(DF.temp[,'y'],DF.temp[,'x']),c('y','x',temp.date.colname)];
+            DF.temp <- matrix(data = DF.temp[,temp.date.colname], nrow = n.x, ncol = n.y, byrow = FALSE);
+
+            cat("\nstr(DF.temp)\n");
+            print( str(DF.temp)   );
+
+            ncdf4::ncvar_put(
+                nc    = ncdf4.object,
+                varid = variable,
+                vals  = DF.temp,
+                start = c(1,  1,  date.index),
+                count = c(n.x,n.y,1         )
+                );
+
+            }
 
         }
 
@@ -150,8 +171,8 @@ getData.aridity_get.list.vars <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     spatial.units <- sf::st_crs(SF.SpatialData)$units;
-    vals.x <- sort(unique(unlist(  sf::st_drop_geometry(SF.SpatialData[,'X'])  )));
-    vals.y <- sort(unique(unlist(  sf::st_drop_geometry(SF.SpatialData[,'Y'])  )));
+    vals.x <- sort(unique(unlist(  sf::st_drop_geometry(SF.SpatialData[,'x'])  )));
+    vals.y <- sort(unique(unlist(  sf::st_drop_geometry(SF.SpatialData[,'y'])  )));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     dimension.x <- ncdf4::ncdim_def(
