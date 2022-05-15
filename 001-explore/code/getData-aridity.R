@@ -132,6 +132,9 @@ getData.aridity_put.variable <- function(
                 by = c('x','y')
                 ));
 
+            cat("\nstr(DF.temp)\n");
+            print( str(DF.temp)   );
+
             cat("\nsummary(DF.temp)\n");
             print( summary(DF.temp)   );
 
