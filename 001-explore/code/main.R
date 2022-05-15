@@ -65,9 +65,6 @@ parquet.SpatialData <- "SF-SpatialData.parquet";
 ncdf4.water         <- "data-MELAKE-MPREC.nc";
 ncdf4.aridity       <- "data-aridity.nc";
 
-upper.palette.colours <- c('green','green','yellow','orange','red','red');
-lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
-
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 DF.dates <- get.DF.dates(
@@ -134,6 +131,9 @@ for ( temp.data.set in data.sets ) {
     for ( temp.colname in numeric.colnames ) {
 
         palette.mid.point <- 0;
+
+        upper.palette.colours <- c('green','green','yellow','orange','red','red');
+        lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
 
         if ( temp.colname == "PValue" ) {
             palette.mid.point     <- 0.05;
