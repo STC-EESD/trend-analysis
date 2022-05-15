@@ -107,7 +107,7 @@ getData.aridity_put.variable <- function(
 
         for ( temp.date.colname in date.colnames ) {
 
-            cat("\n### temp.txt.file:",temp.txt.file," temp.date.colname:",temp.date.colname,"\n");
+            cat("\n### temp.txt.file:",temp.txt.file,", temp.date.colname:",temp.date.colname,"\n");
 
             temp.date.string <- stringr::str_extract(string = temp.date.colname, pattern = "[0-9]{4}.[0-9]{2}");
             temp.date.string <- gsub(x = temp.date.string, pattern = "_", replacement = "-");
