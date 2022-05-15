@@ -16,20 +16,20 @@ start.proc.time <- proc.time();
 setwd( output.directory );
 
 ##################################################
-require(sf);
 require(arrow);
 require(ggplot2);
+require(ncdf4);
 require(raster);
+require(sf);
+require(stringr);
+require(terrainr);
+require(tidyr);
 
-# require(stringr);
-# require(ncdf4);
 # require(openssl);
-# require(terrainr);
-# require(sf);
-# require(tidyr);
 
 # source supporting R code
 code.files <- c(
+    "get-DF-coordinates.R",
     "get-DF-dates.R",
     "getData-ts-stats.R",
     "getData-aridity.R",
@@ -37,16 +37,6 @@ code.files <- c(
     "initializePlot.R",
     "plot-geo-heatmap.R",
     "utils-rgb.R"
-    # "compute-fpc-scores.R",
-    # "getData-colour-scheme.R",
-    # "getData-geojson.R",
-    # "persist-fpc-scores.R",
-    # "plot-RGB-fpc-scores.R",
-    # "preprocess-training-data.R",
-    # "train-fpc-FeatureEngine.R",
-    # "visualize-fpc-approximations.R",
-    # "visualize-training-data.R",
-    # "tiff2parquet.R",
     );
 
 for ( code.file in code.files ) {
@@ -69,56 +59,47 @@ dir.water   <- file.path(data.directory,"2022-05-04-hugo");
 dir.aridity <- file.path(data.directory,"2022-05-06-aridity");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# DF.metadata <- data.frame(
-#     variable      = c('mp.ET','m.prec'),
-#     units         = c('millimeter','millimeter'),
-#     sub.directory = c('MELAKE','MPREC'),
-#     description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
-#     );
-#
-# ncdf4.water <- "data-MELAKE-MPREC.nc";
-# getData.water(
-#     GDB.SpatialData = GDB.SpatialData,
-#     dir.water       = dir.water,
-#     DF.metadata     = DF.metadata,
-#     ncdf4.output    = ncdf4.water
-#     );
+date.reference      <- as.Date("1970-01-01", tz = "UTC");
+parquet.dates       <- "DF-dates.parquet";
+parquet.SpatialData <- "SF-SpatialData.parquet";
+ncdf4.water         <- "data-MELAKE-MPREC.nc";
+ncdf4.aridity       <- "data-aridity.nc";
+
+upper.palette.colours <- c('green','green','yellow','orange','red','red');
+lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-DF.dates <- get.DF.dates();
-arrow::write_parquet(x = DF.dates, sink = "DF-dates.parquet");
-
-cat("\nstr(DF.dates)\n");
-print( str(DF.dates)   );
-
-cat("\nsummary(DF.dates)\n");
-print( summary(DF.dates)   );
-
-SF.SpatialData <- sf::st_read(GDB.SpatialData);
-SF.SpatialData <- cbind(SF.SpatialData,sf::st_coordinates(SF.SpatialData));
-colnames(SF.SpatialData) <- gsub(
-    x           = colnames(SF.SpatialData),
-    pattern     = "pointid",
-    replacement = "pointID"
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+DF.dates <- get.DF.dates(
+    date.reference = date.reference
     );
-colnames(SF.SpatialData) <- gsub(
-    x           = colnames(SF.SpatialData),
-    pattern     = "^X$",
-    replacement = "x"
+arrow::write_parquet(x = DF.dates, sink = parquet.dates);
+
+temp.list <- get.DF.coordinates(
+    GDB.SpatialData     = GDB.SpatialData,
+    parquet.SpatialData = parquet.SpatialData
     );
-colnames(SF.SpatialData) <- gsub(
-    x           = colnames(SF.SpatialData),
-    pattern     = "^Y$",
-    replacement = "y"
+SF.SpatialData         <- temp.list[['SF.SpatialData'        ]];
+get.coordinate.indexes <- temp.list[['get.coordinate.indexes']];
+rm(list = "temp.list"); gc();
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+DF.metadata <- data.frame(
+    variable      = c('mp.ET','m.prec'),
+    units         = c('millimeter','millimeter'),
+    sub.directory = c('MELAKE','MPREC'),
+    description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
     );
-arrow::write_parquet(x = SF.SpatialData, sink = "SF-SpatialData.parquet");
 
-cat("\nstr(SF.SpatialData)\n");
-print( str(SF.SpatialData)   );
+getData.water(
+    dir.water      = dir.water,
+    DF.metadata    = DF.metadata,
+    DF.dates       = DF.dates,
+    date.reference = date.reference,
+    ncdf4.output   = ncdf4.water
+    );
 
-cat("\nsummary(SF.SpatialData)\n");
-print( summary(SF.SpatialData)   );
-
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 DF.metadata <- data.frame(
     variable      = c('deficit','stress'),
     units         = c('numeral','numeral'),
@@ -126,44 +107,16 @@ DF.metadata <- data.frame(
     description   = c('deficit','stress')
     );
 
-ncdf4.aridity <- "data-aridity.nc";
 getData.aridity(
     SF.SpatialData = SF.SpatialData,
-    dir.aridity    = dir.aridity,
     DF.dates       = DF.dates,
+    dir.aridity    = dir.aridity,
     DF.metadata    = DF.metadata,
     ncdf4.output   = ncdf4.aridity
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-##################################################
-print( warnings() );
-
-print( getOption('repos') );
-
-print( .libPaths() );
-
-print( sessionInfo() );
-
-print( format(Sys.time(),"%Y-%m-%d %T %Z") );
-
-stop.proc.time <- proc.time();
-print( stop.proc.time - start.proc.time );
-
-quit(save = "no");
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 data.sets <- c("WaterDeficit","WaterStress");
-
 for ( temp.data.set in data.sets ) {
 
     cat("\n### processing:",temp.data.set,"\n");
@@ -181,17 +134,6 @@ for ( temp.data.set in data.sets ) {
     for ( temp.colname in numeric.colnames ) {
 
         palette.mid.point <- 0;
-
-        # palette.colours = c('Navy','Blue','Green','Yellow','Red'),
-
-        # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
-        # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
-
-        # upper.palette.colours <- c('grey25','grey50','yellow','orange','red','red');
-        # lower.palette.colours <- c('cyan1','cyan2','cyan3','cyan4','grey50','grey25');
-
-        upper.palette.colours <- c('green','green','yellow','orange','red','red');
-        lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
 
         if ( temp.colname == "PValue" ) {
             palette.mid.point     <- 0.05;
@@ -216,22 +158,6 @@ for ( temp.data.set in data.sets ) {
         }
 
     }
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-#   FILE.mprec.2016.09 <- file.path(data.directory,"2022-05-04-hugo","MPREC","MPREC_2016_09.bil");
-# RASTER.mprec.2016.09 <- raster::raster(FILE.mprec.2016.09);
-#     DF.mprec.2016.09 <- cbind(raster::coordinates(RASTER.mprec.2016.09),raster::getValues(RASTER.mprec.2016.09));
-#
-# cat("\nraster::crs(RASTER.mprec.2016.09)\n");
-# print( raster::crs(RASTER.mprec.2016.09)   );
-#
-# cat("\nstr(DF.mprec.2016.09)\n");
-# print( str(DF.mprec.2016.09)   );
-#
-# cat("\nsummary(DF.mprec.2016.09)\n");
-# print( summary(DF.mprec.2016.09)   );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
