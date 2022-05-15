@@ -30,7 +30,9 @@ require(raster);
 
 # source supporting R code
 code.files <- c(
+    "get-DF-dates.R",
     "getData-ts-stats.R",
+    "getData-aridity.R",
     "getData-water.R",
     "initializePlot.R",
     "plot-geo-heatmap.R",
@@ -61,27 +63,64 @@ n.cores   <- ifelse(test = is.macOS, yes = 2, no = parallel::detectCores() - 1);
 cat(paste0("\n# n.cores = ",n.cores,"\n"));
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb")
+GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb");
 
 dir.water   <- file.path(data.directory,"2022-05-04-hugo");
 dir.aridity <- file.path(data.directory,"2022-05-06-aridity","From_Zdenek");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-data.water <- 'data-water';
+# data.water <- 'data-water';
+#
+# DF.metadata <- data.frame(
+#     variable      = c('mp.ET','m.prec'),
+#     units         = c('millimeter','millimeter'),
+#     sub.directory = c('MELAKE','MPREC'),
+#     description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
+#     );
+#
+# ncdf4.water <- "data-MELAKE-MPREC.nc";
+# getData.water(
+#     GDB.SpatialData = GDB.SpatialData,
+#     dir.water       = dir.water,
+#     DF.metadata     = DF.metadata,
+#     ncdf4.output    = ncdf4.water
+#     );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+data.aridity <- 'data-aridity';
+
+DF.dates <- get.DF.dates();
+arrow::write_parquet(x = DF.dates, sink = "DF-dates.parquet");
+
+cat("\nstr(DF.dates)\n");
+print( str(DF.dates)   );
+
+cat("\nsummary(DF.dates)\n");
+print( summary(DF.dates)   );
+
+SF.SpatialData <- sf::st_read(GDB.SpatialData);
+colnames(SF.SpatialData) <- gsub(
+    x           = colnames(SF.SpatialData),
+    pattern     = "pointid",
+    replacement = "pointID"
+    );
+SF.SpatialData <- cbind(SF.SpatialData,sf::st_coordinates(SF.SpatialData));
+arrow::write_parquet(x = SF.SpatialData, sink = "SF-SpatialData.parquet");
 
 DF.metadata <- data.frame(
-    variable      = c('mp.ET','m.prec'),
-    units         = c('millimeter','millimeter'),
-    sub.directory = c('MELAKE','MPREC'),
-    description   = c('monthly.potential.evapotranspiration','monthly.precipitation')
+    variable      = c('deficit','stress'),
+    units         = c('numeral','numeral'),
+    sub.directory = c('Water_Deficit_TXT','Water_Stress_TXT'),
+    description   = c('deficit','stress')
     );
 
-ncdf4.water <- "data-MELAKE-MPREC.nc";
-getData.water(
-    GDB.SpatialData = GDB.SpatialData,
-    dir.water       = dir.water,
-    DF.metadata     = DF.metadata,
-    ncdf4.output    = ncdf4.water
+ncdf4.aridity <- "data-aridity.nc";
+getData.aridity(
+    SF.SpatialData = SF.SpatialData,
+    dir.aridity    = dir.aridity,
+    DF.dates       = DF.dates,
+    DF.metadata    = DF.metadata,
+    ncdf4.output   = ncdf4.aridity
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
