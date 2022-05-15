@@ -66,11 +66,9 @@ cat(paste0("\n# n.cores = ",n.cores,"\n"));
 GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb");
 
 dir.water   <- file.path(data.directory,"2022-05-04-hugo");
-dir.aridity <- file.path(data.directory,"2022-05-06-aridity","From_Zdenek");
+dir.aridity <- file.path(data.directory,"2022-05-06-aridity");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# data.water <- 'data-water';
-#
 # DF.metadata <- data.frame(
 #     variable      = c('mp.ET','m.prec'),
 #     units         = c('millimeter','millimeter'),
@@ -87,8 +85,6 @@ dir.aridity <- file.path(data.directory,"2022-05-06-aridity","From_Zdenek");
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-data.aridity <- 'data-aridity';
-
 DF.dates <- get.DF.dates();
 arrow::write_parquet(x = DF.dates, sink = "DF-dates.parquet");
 
@@ -99,12 +95,22 @@ cat("\nsummary(DF.dates)\n");
 print( summary(DF.dates)   );
 
 SF.SpatialData <- sf::st_read(GDB.SpatialData);
+SF.SpatialData <- cbind(SF.SpatialData,sf::st_coordinates(SF.SpatialData));
 colnames(SF.SpatialData) <- gsub(
     x           = colnames(SF.SpatialData),
     pattern     = "pointid",
     replacement = "pointID"
     );
-SF.SpatialData <- cbind(SF.SpatialData,sf::st_coordinates(SF.SpatialData));
+colnames(SF.SpatialData) <- gsub(
+    x           = colnames(SF.SpatialData),
+    pattern     = "^X$",
+    replacement = "x"
+    );
+colnames(SF.SpatialData) <- gsub(
+    x           = colnames(SF.SpatialData),
+    pattern     = "^Y$",
+    replacement = "y"
+    );
 arrow::write_parquet(x = SF.SpatialData, sink = "SF-SpatialData.parquet");
 
 cat("\nstr(SF.SpatialData)\n");
@@ -164,7 +170,7 @@ for ( temp.data.set in data.sets ) {
 
     SF.stats <- getData.ts.stats(
         GDB.SpatialData = GDB.SpatialData,
-        CSV.ts.stats    = file.path(dir.aridity,paste0(temp.data.set,".csv")),
+        CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
         parquet.output  = paste0("data-",temp.data.set,".parquet")
         );
 
