@@ -3,6 +3,7 @@ generate.timeplots <- function(
     data.sets              = NULL,
     ncdf4.input            = NULL,
     get.coordinate.indexes = NULL,
+    output.directory       = "plots-timeplots",
     dots.per.inch          = 300
     ){
 
@@ -10,6 +11,11 @@ generate.timeplots <- function(
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     cat(paste0("\n# ",thisFunctionName,"() starts.\n"));
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    if ( !dir.exists(output.directory) ) {
+        dir.create(path = output.directory, recursive = TRUE);
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     ncdf4.input.object <- ncdf4::nc_open(filename = ncdf4.input);
@@ -42,8 +48,8 @@ generate.timeplots <- function(
         cat("\nsummary(DF.coordinates.to.plot)\n");
         print( summary(DF.coordinates.to.plot)   );
 
-        #for ( row.index in 1:nrow(DF.coordinates.to.plot) ) {
-        for ( row.index in 1:20 ) {
+        # for ( row.index in 1:20 ) {
+        for ( row.index in 1:nrow(DF.coordinates.to.plot) ) {
 
             pointID <- DF.coordinates.to.plot[row.index,'pointID'];
             x.coord <- DF.coordinates.to.plot[row.index,'x'      ];
@@ -73,12 +79,13 @@ generate.timeplots <- function(
 
             if ( !any(is.na(DF.time.series[,'value'])) ) {
                 generate.timeplots_plot(
-                    pointID        = pointID,
-                    x.coord        = x.coord,
-                    y.coord        = y.coord,
-                    TestZ          = TestZ,
-                    DF.time.series = DF.time.series,
-                    dots.per.inch  = dots.per.inch
+                    pointID          = pointID,
+                    x.coord          = x.coord,
+                    y.coord          = y.coord,
+                    TestZ            = TestZ,
+                    DF.time.series   = DF.time.series,
+                    output.directory = output.directory,
+                    dots.per.inch    = dots.per.inch
                     );
                 }
 
@@ -98,12 +105,13 @@ generate.timeplots <- function(
 
 ##################################################
 generate.timeplots_plot <- function(
-    pointID        = NULL,
-    x.coord        = NULL,
-    y.coord        = NULL,
-    TestZ          = NULL,
-    DF.time.series = NULL,
-    dots.per.inch  = 300
+    pointID          = NULL,
+    x.coord          = NULL,
+    y.coord          = NULL,
+    TestZ            = NULL,
+    DF.time.series   = NULL,
+    output.directory = NULL,
+    dots.per.inch    = 300
     ){
 
 
@@ -162,7 +170,7 @@ generate.timeplots_plot <- function(
 
     # my.ggplot <- my.ggplot + tidyquant::geom_ma(ma_fun = SMA, n = 365, color = "red");
 
-    PNG.output <- paste0("plot-timeplot-",pointID,".png");
+    PNG.output <- file.path(output.directory,paste0("plot-timeplot-",pointID,".png"));
     ggplot2::ggsave(
         filename = PNG.output,
         plot     = my.ggplot,
