@@ -23,13 +23,16 @@ require(raster);
 require(sf);
 require(stringr);
 require(terrainr);
+require(tidyquant);
 require(tidyr);
+require(zoo);
 
 # require(openssl);
 
 # source supporting R code
 code.files <- c(
     "generate-geo-heatmaps.R",
+    "generate-timeplots.R",
     "get-DF-coordinates.R",
     "get-DF-dates.R",
     "getData-ts-stats.R",
@@ -116,13 +119,18 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-generate.geo.heatmaps(
-    data.sets       = data.sets,
-    GDB.SpatialData = GDB.SpatialData,
-    dir.aridity     = dir.aridity
-    );
+# generate.geo.heatmaps(
+#     data.sets       = data.sets,
+#     GDB.SpatialData = GDB.SpatialData,
+#     dir.aridity     = dir.aridity
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+generate.timeplots(
+    data.sets              = data.sets[1],
+    ncdf4.input            = ncdf4.aridity,
+    get.coordinate.indexes = get.coordinate.indexes
+    );
 
 ##################################################
 print( warnings() );
