@@ -122,10 +122,32 @@ generate.timeplots_plot <- function(
         subtitle = paste0("pointID = ",pointID,", (x,y) = (",x.coord,",",y.coord,"), TestZ = ",TestZ)
         );
 
+    my.ggplot <- my.ggplot + ggplot2::theme(
+        legend.position = "none",
+        axis.title.x    = ggplot2::element_blank(),
+        axis.title.y    = ggplot2::element_blank(),
+        axis.ticks.x    = ggplot2::element_blank()
+        );
+
+    my.years <- unique(lubridate::year(DF.time.series[,'date']));
+    is.selected <- rep(c(TRUE,FALSE), times = ceiling((1+length(my.years))/2));
+    my.years <- my.years[is.selected[1:length(my.years)]];
+    my.breaks = as.Date(paste0(my.years,"-07-03"));
+
+    my.ggplot <- my.ggplot + ggplot2::scale_x_continuous(
+        breaks = my.breaks,
+        labels = my.years
+        );
+
+    my.ggplot <- my.ggplot + ggplot2::scale_y_continuous(
+        limits = 175 * c(  -1,1),
+        breaks =  50 * seq(-4,4)
+        );
+
     my.ggplot <- my.ggplot + ggplot2::geom_hline(
         yintercept = 0,
         size       = 1.3,
-        color      = "grey75"
+        color      = "grey85"
         );
 
     my.ggplot <- my.ggplot + ggplot2::geom_line(
@@ -139,12 +161,6 @@ generate.timeplots_plot <- function(
         );
 
     # my.ggplot <- my.ggplot + tidyquant::geom_ma(ma_fun = SMA, n = 365, color = "red");
-
-    my.ggplot <- my.ggplot + ggplot2::theme(
-        legend.position = "none",
-        axis.title.x    = ggplot2::element_blank(),
-        axis.title.y    = ggplot2::element_blank()
-        );
 
     PNG.output <- paste0("plot-timeplot-",pointID,".png");
     ggplot2::ggsave(
@@ -171,17 +187,8 @@ generate.timeplots_get.coordinates <- function(
         parquet.output  = paste0("data-",data.set,".parquet")
         );
 
-    cat("\nstr(SF.stats)\n");
-    print( str(SF.stats)   );
-
     SF.stats <- SF.stats %>% dplyr::filter(TestZ > 4 | TestZ < -8);
     SF.stats <- cbind(sf::st_coordinates(SF.stats),SF.stats);
-    SF.stats <- SF.stats[,c('pointID',setdiff(colnames(SF.stats),'pointID'))];
-    SF.stats[,c('x.index','y.index')] <- apply(
-        X      = sf::st_drop_geometry(SF.stats[,c('X','Y')]),
-        MARGIN = 1,
-        FUN    = get.coordinate.indexes
-        );
 
     colnames(SF.stats) <- gsub(
         x           = colnames(SF.stats),
@@ -194,6 +201,16 @@ generate.timeplots_get.coordinates <- function(
         pattern     = "^Y$",
         replacement = "y"
         );
+
+    SF.stats <- SF.stats[,c('pointID',setdiff(colnames(SF.stats),'pointID'))];
+    SF.stats[,c('x.index','y.index')] <- t(apply(
+        X      = sf::st_drop_geometry(SF.stats[,c('x','y')]),
+        MARGIN = 1,
+        FUN    = get.coordinate.indexes
+        ));
+
+    cat("\nstr(SF.stats)\n");
+    print( str(SF.stats)   );
 
     return( sf::st_drop_geometry(SF.stats) );
 
