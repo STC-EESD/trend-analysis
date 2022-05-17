@@ -126,17 +126,17 @@ generate.timeplots_plot <- function(
         legend.position = "none",
         axis.title.x    = ggplot2::element_blank(),
         axis.title.y    = ggplot2::element_blank(),
-        axis.ticks.x    = ggplot2::element_blank()
+        axis.text.x     = element_text(face = "bold", angle = 90, vjust = 0.5)
         );
 
     my.years <- unique(lubridate::year(DF.time.series[,'date']));
     is.selected <- rep(c(TRUE,FALSE), times = ceiling((1+length(my.years))/2));
     my.years <- my.years[is.selected[1:length(my.years)]];
-    my.breaks = as.Date(paste0(my.years,"-07-03"));
+    my.breaks = as.Date(paste0(my.years,"-01-01"));
 
     my.ggplot <- my.ggplot + ggplot2::scale_x_continuous(
         breaks = my.breaks,
-        labels = my.years
+        labels = my.breaks
         );
 
     my.ggplot <- my.ggplot + ggplot2::scale_y_continuous(
