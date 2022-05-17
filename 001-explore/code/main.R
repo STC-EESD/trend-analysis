@@ -29,6 +29,7 @@ require(tidyr);
 
 # source supporting R code
 code.files <- c(
+    "generate-geo-heatmaps.R",
     "get-DF-coordinates.R",
     "get-DF-dates.R",
     "getData-ts-stats.R",
@@ -57,6 +58,8 @@ GDB.SpatialData <- file.path(data.directory,"2022-05-04-hugo","SpatialData.gdb")
 
 dir.water   <- file.path(data.directory,"2022-05-04-hugo");
 dir.aridity <- file.path(data.directory,"2022-05-06-aridity");
+
+data.sets <- c("WaterDeficit","WaterStress");
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 date.reference      <- as.Date("1970-01-01", tz = "UTC");
@@ -113,51 +116,11 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-data.sets <- c("WaterDeficit","WaterStress");
-for ( temp.data.set in data.sets ) {
-
-    cat("\n### processing:",temp.data.set,"\n");
-
-    SF.stats <- getData.ts.stats(
-        GDB.SpatialData = GDB.SpatialData,
-        CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-        parquet.output  = paste0("data-",temp.data.set,".parquet")
-        );
-
-    cat("\nstr(SF.stats)\n");
-    print( str(SF.stats)   );
-
-    numeric.colnames <- setdiff(colnames(SF.stats),c("pointID","Shape"));
-    for ( temp.colname in numeric.colnames ) {
-
-        palette.mid.point <- 0;
-
-        upper.palette.colours <- c('green','green','yellow','orange','red','red');
-        lower.palette.colours <- c('violet','navy','blue3','blue','green4','green');
-
-        if ( temp.colname == "PValue" ) {
-            palette.mid.point     <- 0.05;
-            upper.palette.colours <- c('grey25','grey25');
-            lower.palette.colours <- c('orange','grey25');
-        } else if ( temp.data.set == "WaterStress" & temp.colname == "TestZ" ) {
-            palette.mid.point <- -1.25;
-            }
-
-        plot.geo.heatmap(
-            data.set              = temp.data.set,
-            SF.input              = SF.stats,
-            variable              = temp.colname,
-            palette.mid.point     = palette.mid.point,
-            upper.palette.colours = upper.palette.colours,
-            lower.palette.colours = lower.palette.colours,
-            upper.palette.size    = 1000,
-            lower.palette.size    = 1000,
-            dots.per.inch         = 300
-            );
-
-        }
-
-    }
+generate.geo.heatmaps(
+    data.sets       = data.sets,
+    GDB.SpatialData = GDB.SpatialData,
+    dir.aridity     = dir.aridity
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
