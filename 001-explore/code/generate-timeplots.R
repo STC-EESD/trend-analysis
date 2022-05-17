@@ -122,12 +122,18 @@ generate.timeplots_plot <- function(
         subtitle = paste0("pointID = ",pointID,", (x,y) = (",x.coord,",",y.coord,"), TestZ = ",TestZ)
         );
 
-    my.ggplot <- my.ggplot + geom_line(
+    my.ggplot <- my.ggplot + ggplot2::geom_hline(
+        yintercept = 0,
+        size       = 1.3,
+        color      = "grey75"
+        );
+
+    my.ggplot <- my.ggplot + ggplot2::geom_line(
         data    = DF.time.series,
         mapping = ggplot2::aes(x = date, y = value)
         );
 
-    my.ggplot <- my.ggplot + geom_line(
+    my.ggplot <- my.ggplot + ggplot2::geom_line(
         data    = DF.time.series,
         mapping = ggplot2::aes(x = date, y = moving.average, colour = "red")
         );
@@ -146,7 +152,7 @@ generate.timeplots_plot <- function(
         plot     = my.ggplot,
         # scale  = 1,
         width    = 30,
-        height   = 12,
+        height   =  8,
         units    = "in",
         dpi      = dots.per.inch
         );
