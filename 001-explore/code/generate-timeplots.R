@@ -195,7 +195,7 @@ generate.timeplots_get.coordinates <- function(
         );
 
     # SF.stats <- SF.stats %>% dplyr::filter(TestZ > 4 | TestZ < -8);
-    SF.stats <- SF.stats %>% dplyr::filter(TestZ > 4);
+    SF.stats <- SF.stats %>% dplyr::filter(TestZ > 3.75 | TestZ < -8.75);
     SF.stats <- cbind(sf::st_coordinates(SF.stats),SF.stats);
 
     colnames(SF.stats) <- gsub(
