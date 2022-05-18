@@ -37,8 +37,8 @@ generate.geo.heatmaps <- function(
                 upper.palette.colours <- c('grey25','grey25');
                 lower.palette.colours <- c('orange','grey25');
             } else if ( temp.data.set == "WaterStress" ) {
-                upper.palette.colours <- c('green','yellow','yellow','orange','red');
-                lower.palette.colours <- c('violet','navy','blue3','blue','green','green');
+                # upper.palette.colours <- c('green','yellow','yellow','orange','red');
+                # lower.palette.colours <- c('violet','navy','blue3','blue','green','green');
                 if ( temp.colname == "TestZ" ) { palette.mid.point <- -1.25; }
                 }
 
