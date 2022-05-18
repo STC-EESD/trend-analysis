@@ -223,7 +223,7 @@ generate.timeplots_get.coordinates <- function(
     DF.stats <- sf::st_drop_geometry(SF.stats);
     rm(list = "SF.stats");
 
-    is.near.top    <- (4 < DF.stats[,'TestZ']);
+    is.near.top    <- (3.75 < DF.stats[,'TestZ']);
     is.near.zero   <- (-2e-2 < DF.stats[,'TestZ'] & DF.stats[,'TestZ'] < -1e-2);
     is.near.bottom <- (DF.stats[,'TestZ'] < -10);
 
