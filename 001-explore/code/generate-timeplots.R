@@ -86,6 +86,7 @@ generate.timeplots <- function(
 
             if ( !any(is.na(DF.time.series[,'value'])) ) {
                 generate.timeplots_plot(
+                    data.set         = temp.data.set,
                     pointID          = pointID,
                     x.coord          = x.coord,
                     y.coord          = y.coord,
@@ -112,6 +113,7 @@ generate.timeplots <- function(
 
 ##################################################
 generate.timeplots_plot <- function(
+    data.set         = NULL,
     pointID          = NULL,
     x.coord          = NULL,
     y.coord          = NULL,
@@ -177,7 +179,7 @@ generate.timeplots_plot <- function(
     # my.ggplot <- my.ggplot + tidyquant::geom_ma(ma_fun = SMA, n = 365, color = "red");
 
     if (!dir.exists(output.directory)) { dir.create(path = output.directory, recursive = TRUE) }
-    PNG.output <- file.path(output.directory,paste0("plot-timeplot-",pointID,".png"));
+    PNG.output <- file.path(output.directory,paste0("plot-timeplot-",data.set,"-",pointID,".png"));
     ggplot2::ggsave(
         filename = PNG.output,
         plot     = my.ggplot,
