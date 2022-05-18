@@ -23,11 +23,11 @@ require(raster);
 require(sf);
 require(stringr);
 require(terrainr);
-require(tidyquant);
 require(tidyr);
 require(zoo);
 
 # require(openssl);
+# require(tidyquant);
 
 # source supporting R code
 code.files <- c(
@@ -40,7 +40,8 @@ code.files <- c(
     "getData-water.R",
     "initializePlot.R",
     "plot-geo-heatmap.R",
-    "utils-rgb.R"
+    "utils-rgb.R",
+    "verify-ncdf4-object.R"
     );
 
 for ( code.file in code.files ) {
@@ -119,6 +120,19 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+verify.ncdf4.object(
+    ncdf4.input            = ncdf4.aridity,
+    dir.aridity            = dir.aridity,
+    DF.SpatialData         = sf::st_drop_geometry(SF.SpatialData),
+    DF.dates               = DF.dates,
+    get.coordinate.indexes = get.coordinate.indexes,
+    DF.metadata            = data.frame(
+        varid     = c('deficit',          'stress'          ),
+        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+        )
+    );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # generate.geo.heatmaps(
 #     data.sets       = data.sets,
 #     GDB.SpatialData = GDB.SpatialData,
@@ -126,14 +140,14 @@ getData.aridity(
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-generate.timeplots(
-    data.sets              = data.sets,
-    ncdf4.input            = ncdf4.aridity,
-    get.coordinate.indexes = get.coordinate.indexes,
-    threshold.top          = 3.75,
-    threshold.zero         = 1e-2,
-    threshold.bottom       = -10
-    );
+# generate.timeplots(
+#     data.sets              = data.sets,
+#     ncdf4.input            = ncdf4.aridity,
+#     get.coordinate.indexes = get.coordinate.indexes,
+#     threshold.top          = 3.75,
+#     threshold.zero         = 1e-2,
+#     threshold.bottom       = -10
+#     );
 
 ##################################################
 print( warnings() );
