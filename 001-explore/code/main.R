@@ -133,21 +133,21 @@ verify.ncdf4.object(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# generate.geo.heatmaps(
-#     data.sets       = data.sets,
-#     GDB.SpatialData = GDB.SpatialData,
-#     dir.aridity     = dir.aridity
-#     );
+generate.geo.heatmaps(
+    data.sets       = data.sets,
+    GDB.SpatialData = GDB.SpatialData,
+    dir.aridity     = dir.aridity
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# generate.timeplots(
-#     data.sets              = data.sets,
-#     ncdf4.input            = ncdf4.aridity,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     threshold.top          = 3.75,
-#     threshold.zero         = 1e-2,
-#     threshold.bottom       = -10
-#     );
+generate.timeplots(
+    data.sets              = data.sets,
+    ncdf4.input            = ncdf4.aridity,
+    get.coordinate.indexes = get.coordinate.indexes,
+    threshold.top          = 3.75,
+    threshold.zero         = 1e-2,
+    threshold.bottom       = -10
+    );
 
 ##################################################
 print( warnings() );
