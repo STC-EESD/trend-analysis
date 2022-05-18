@@ -6,7 +6,7 @@ verify.ncdf4.object <- function(
     DF.dates               = NULL,
     get.coordinate.indexes = NULL,
     DF.metadata            = NULL,
-    n.sampled.rows         = 10
+    n.sampled.rows         = 100
     ) {
 
     thisFunctionName <- "verify.ncdf4.object";
@@ -105,7 +105,15 @@ verify.ncdf4.object <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    DF.check[,'diff'] <- abs(DF.check[,'txt'] - DF.check[,'nc']);
+    # DF.check[,'diff'] <- abs(DF.check[,'txt'] - DF.check[,'nc']);
+    DF.check[,'diff'] <- apply(
+        X      = DF.check[,c('txt','nc')],
+        MARGIN = 1,
+        FUN    = function(z) {
+            return(ifelse( all(is.na(z)) , 0 , abs(z[1] - z[2]) ))
+            }
+        );
+
     write.csv(
         x         = DF.check,
         file      = "DF-verify-ncdf4-object.csv",
