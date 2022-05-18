@@ -51,12 +51,13 @@ generate.timeplots <- function(
         # for ( row.index in 1:20 ) {
         for ( row.index in 1:nrow(DF.coordinates.to.plot) ) {
 
-            pointID <- DF.coordinates.to.plot[row.index,'pointID'];
-            x.coord <- DF.coordinates.to.plot[row.index,'x'      ];
-            y.coord <- DF.coordinates.to.plot[row.index,'y'      ];
-            TestZ   <- DF.coordinates.to.plot[row.index,'TestZ'  ];
-            x.index <- DF.coordinates.to.plot[row.index,'x.index'];
-            y.index <- DF.coordinates.to.plot[row.index,'y.index'];
+            sub.dir <- DF.coordinates.to.plot[row.index,'sub.directory'];
+            pointID <- DF.coordinates.to.plot[row.index,'pointID'      ];
+            x.coord <- DF.coordinates.to.plot[row.index,'x'            ];
+            y.coord <- DF.coordinates.to.plot[row.index,'y'            ];
+            TestZ   <- DF.coordinates.to.plot[row.index,'TestZ'        ];
+            x.index <- DF.coordinates.to.plot[row.index,'x.index'      ];
+            y.index <- DF.coordinates.to.plot[row.index,'y.index'      ];
 
             DF.time.series <- data.frame(
                 date  = my.dates,
@@ -84,7 +85,7 @@ generate.timeplots <- function(
                     y.coord          = y.coord,
                     TestZ            = TestZ,
                     DF.time.series   = DF.time.series,
-                    output.directory = output.directory,
+                    output.directory = file.path(output.directory,sub.dir),
                     dots.per.inch    = dots.per.inch
                     );
                 }
@@ -169,6 +170,7 @@ generate.timeplots_plot <- function(
 
     # my.ggplot <- my.ggplot + tidyquant::geom_ma(ma_fun = SMA, n = 365, color = "red");
 
+    if (!dir.exists(output.directory)) { dir.create(path = output.directory, recursive = TRUE) }
     PNG.output <- file.path(output.directory,paste0("plot-timeplot-",pointID,".png"));
     ggplot2::ggsave(
         filename = PNG.output,
@@ -188,14 +190,12 @@ generate.timeplots_get.coordinates <- function(
     data.set        = NULL
     ){
 
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     SF.stats <- getData.ts.stats(
         GDB.SpatialData = GDB.SpatialData,
         CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(data.set,".csv")),
         parquet.output  = paste0("data-",data.set,".parquet")
         );
-
-    # SF.stats <- SF.stats %>% dplyr::filter(TestZ > 4 | TestZ < -8);
-    SF.stats <- SF.stats %>% dplyr::filter(TestZ < -10 | 4 < TestZ | (-2e-6 < TestZ & TestZ < -1e-6));
     SF.stats <- cbind(sf::st_coordinates(SF.stats),SF.stats);
 
     colnames(SF.stats) <- gsub(
@@ -210,7 +210,6 @@ generate.timeplots_get.coordinates <- function(
         replacement = "y"
         );
 
-    SF.stats <- SF.stats[,c('pointID',setdiff(colnames(SF.stats),'pointID'))];
     SF.stats[,c('x.index','y.index')] <- t(apply(
         X      = sf::st_drop_geometry(SF.stats[,c('x','y')]),
         MARGIN = 1,
@@ -220,6 +219,48 @@ generate.timeplots_get.coordinates <- function(
     cat("\nstr(SF.stats)\n");
     print( str(SF.stats)   );
 
-    return( sf::st_drop_geometry(SF.stats) );
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.stats <- sf::st_drop_geometry(SF.stats);
+    rm(list = "SF.stats");
+
+    is.near.top    <- (4 < DF.stats[,'TestZ']);
+    is.near.zero   <- (-2e-2 < DF.stats[,'TestZ'] & DF.stats[,'TestZ'] < -1e-2);
+    is.near.bottom <- (DF.stats[,'TestZ'] < -10);
+
+    cat("\nsum(is.near.top   ) = ",sum(is.near.top   ),"\n");
+    cat("\nsum(is.near.zero  ) = ",sum(is.near.zero  ),"\n");
+    cat("\nsum(is.near.bottom) = ",sum(is.near.bottom),"\n");
+
+    selected.pointIDs.near.top    <- sample(x = DF.stats[is.near.top,   'pointID'], size = min(20,sum(is.near.top))   );
+    selected.pointIDs.near.zero   <- sample(x = DF.stats[is.near.zero,  'pointID'], size = min(20,sum(is.near.zero))  );
+    selected.pointIDs.near.bottom <- sample(x = DF.stats[is.near.bottom,'pointID'], size = min(20,sum(is.near.bottom)));
+
+    cat("\nselected.pointIDs.near.top\n");
+    print( selected.pointIDs.near.top   );
+
+    cat("\nselected.pointIDs.near.zero\n");
+    print( selected.pointIDs.near.zero   );
+
+    cat("\nselected.pointIDs.near.bottom\n");
+    print( selected.pointIDs.near.bottom   );
+
+    selected.pointIDs <- c(
+        selected.pointIDs.near.top,
+        selected.pointIDs.near.zero,
+        selected.pointIDs.near.bottom
+        );
+
+    DF.stats <- DF.stats[DF.stats[,'pointID'] %in% selected.pointIDs,];
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.stats[,'sub.directory'] <- 'near-zero';
+    DF.stats[DF.stats[,'TestZ'] >   4,'sub.directory'] <- 'near-top';
+    DF.stats[DF.stats[,'TestZ'] < -10,'sub.directory'] <- 'near-bottom';
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    DF.stats <- DF.stats[,c('pointID',setdiff(colnames(DF.stats),'pointID'))];
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    return( DF.stats );
 
     }
