@@ -129,7 +129,10 @@ getData.aridity(
 generate.timeplots(
     data.sets              = data.sets[1],
     ncdf4.input            = ncdf4.aridity,
-    get.coordinate.indexes = get.coordinate.indexes
+    get.coordinate.indexes = get.coordinate.indexes,
+    threshold.top          = 3.75,
+    threshold.zero         = 1e-2,
+    threshold.bottom       = -10
     );
 
 ##################################################

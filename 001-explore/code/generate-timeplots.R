@@ -3,6 +3,9 @@ generate.timeplots <- function(
     data.sets              = NULL,
     ncdf4.input            = NULL,
     get.coordinate.indexes = NULL,
+    threshold.top          = 3.75,
+    threshold.zero         = 1e-2,
+    threshold.bottom       = -10,
     output.directory       = "plots-timeplots",
     dots.per.inch          = 300
     ){
@@ -37,9 +40,12 @@ generate.timeplots <- function(
         cat("\n### processing:",temp.data.set,"\n");
 
         DF.coordinates.to.plot <- generate.timeplots_get.coordinates(
-            GDB.SpatialData = GDB.SpatialData,
-            dir.aridity     = dir.aridity,
-            data.set        = temp.data.set
+            GDB.SpatialData  = GDB.SpatialData,
+            dir.aridity      = dir.aridity,
+            data.set         = temp.data.set,
+            threshold.top    = threshold.top,
+            threshold.zero   = threshold.zero,
+            threshold.bottom = threshold.bottom
             );
 
         cat("\nstr(DF.coordinates.to.plot)\n");
@@ -185,9 +191,12 @@ generate.timeplots_plot <- function(
     }
 
 generate.timeplots_get.coordinates <- function(
-    GDB.SpatialData = NULL,
-    dir.aridity     = NULL,
-    data.set        = NULL
+    GDB.SpatialData  = NULL,
+    dir.aridity      = NULL,
+    data.set         = NULL,
+    threshold.top    = NULL,
+    threshold.zero   = NULL,
+    threshold.bottom = NULL
     ){
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -223,9 +232,9 @@ generate.timeplots_get.coordinates <- function(
     DF.stats <- sf::st_drop_geometry(SF.stats);
     rm(list = "SF.stats");
 
-    is.near.top    <- (3.75 < DF.stats[,'TestZ']);
-    is.near.zero   <- (-2e-2 < DF.stats[,'TestZ'] & DF.stats[,'TestZ'] < -1e-2);
-    is.near.bottom <- (DF.stats[,'TestZ'] < -10);
+    is.near.top    <- (threshold.top < DF.stats[,'TestZ']);
+    is.near.zero   <- (-2 * threshold.zero < DF.stats[,'TestZ'] & DF.stats[,'TestZ'] < -threshold.zero);
+    is.near.bottom <- (DF.stats[,'TestZ'] < threshold.bottom);
 
     cat("\nsum(is.near.top   ) = ",sum(is.near.top   ),"\n");
     cat("\nsum(is.near.zero  ) = ",sum(is.near.zero  ),"\n");
@@ -254,8 +263,8 @@ generate.timeplots_get.coordinates <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.stats[,'sub.directory'] <- 'near-zero';
-    DF.stats[DF.stats[,'TestZ'] >   4,'sub.directory'] <- 'near-top';
-    DF.stats[DF.stats[,'TestZ'] < -10,'sub.directory'] <- 'near-bottom';
+    DF.stats[DF.stats[,'TestZ'] > threshold.top,   'sub.directory'] <- 'near-top';
+    DF.stats[DF.stats[,'TestZ'] < threshold.bottom,'sub.directory'] <- 'near-bottom';
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     DF.stats <- DF.stats[,c('pointID',setdiff(colnames(DF.stats),'pointID'))];
