@@ -27,7 +27,9 @@ get.DF.coordinates <- function(
         pattern     = "^Y$",
         replacement = "y"
         );
-    arrow::write_parquet(x = SF.SpatialData, sink = parquet.SpatialData);
+    print("A-1");
+    sfarrow::st_write_parquet(obj = SF.SpatialData, dsn = parquet.SpatialData);
+    print("A-2");
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     x.coords <- sort(unique(unlist(sf::st_drop_geometry(SF.SpatialData[,'x']))));
