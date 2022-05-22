@@ -18,7 +18,7 @@ generate.geo.heatmaps <- function(
         SF.stats <- getData.ts.stats(
             GDB.SpatialData = GDB.SpatialData,
             CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-            parquet.output  = paste0("data-",temp.data.set,".parquet")
+            parquet.output  = paste0("SF-",temp.data.set,".parquet")
             );
 
         cat("\nstr(SF.stats)\n");
