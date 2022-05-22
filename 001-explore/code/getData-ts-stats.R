@@ -19,7 +19,7 @@ getData.ts.stats <- function(
     if ( file.exists(parquet.output) ) {
 
         cat(paste0("\nThe file ",parquet.output," already exists; loading the file ...\n"));
-        SF.output <- sf::st_as_sf(sfarrow::st_read_parquet(dsn = parquet.output));
+        SF.output <- sfarrow::st_read_parquet(dsn = parquet.output);
 
     } else {
 
