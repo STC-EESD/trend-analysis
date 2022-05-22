@@ -205,7 +205,7 @@ generate.timeplots_get.coordinates <- function(
     SF.stats <- getData.ts.stats(
         GDB.SpatialData = GDB.SpatialData,
         CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(data.set,".csv")),
-        parquet.output  = paste0("data-",data.set,".parquet")
+        parquet.output  = paste0("SF-",data.set,".parquet")
         );
     SF.stats <- cbind(sf::st_coordinates(SF.stats),SF.stats);
 
