@@ -31,6 +31,7 @@ require(zoo);
 
 # source supporting R code
 code.files <- c(
+    "explore-time-series.R",
     "generate-geo-heatmaps.R",
     "generate-timeplots.R",
     "get-DF-coordinates.R",
@@ -85,6 +86,12 @@ temp.list <- get.DF.coordinates(
     );
 SF.SpatialData         <- temp.list[['SF.SpatialData'        ]];
 get.coordinate.indexes <- temp.list[['get.coordinate.indexes']];
+
+base::saveRDS(
+    file   = "get-integer-coordinate-indexes.RData",
+    object = temp.list[['get.integer.coordinate.indexes']]
+    );
+
 rm(list = "temp.list"); gc();
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -120,33 +127,42 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-verify.ncdf4.object(
-    ncdf4.input            = ncdf4.aridity,
-    dir.aridity            = dir.aridity,
-    DF.SpatialData         = sf::st_drop_geometry(SF.SpatialData),
-    DF.dates               = DF.dates,
-    get.coordinate.indexes = get.coordinate.indexes,
-    DF.metadata            = data.frame(
-        varid     = c('deficit',          'stress'          ),
-        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
-        )
-    );
+# verify.ncdf4.object(
+#     ncdf4.input            = ncdf4.aridity,
+#     dir.aridity            = dir.aridity,
+#     DF.SpatialData         = sf::st_drop_geometry(SF.SpatialData),
+#     DF.dates               = DF.dates,
+#     get.coordinate.indexes = get.coordinate.indexes,
+#     DF.metadata            = data.frame(
+#         varid     = c('deficit',          'stress'          ),
+#         directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+#         )
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-generate.geo.heatmaps(
-    data.sets       = data.sets,
-    GDB.SpatialData = GDB.SpatialData,
-    dir.aridity     = dir.aridity
-    );
+# generate.geo.heatmaps(
+#     data.sets       = data.sets,
+#     GDB.SpatialData = GDB.SpatialData,
+#     dir.aridity     = dir.aridity
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-generate.timeplots(
+# generate.timeplots(
+#     data.sets              = data.sets,
+#     ncdf4.input            = ncdf4.aridity,
+#     get.coordinate.indexes = get.coordinate.indexes,
+#     threshold.top          = 3.75,
+#     threshold.zero         = 1e-2,
+#     threshold.bottom       = -10
+#     );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+explore.time.series(
     data.sets              = data.sets,
-    ncdf4.input            = ncdf4.aridity,
-    get.coordinate.indexes = get.coordinate.indexes,
-    threshold.top          = 3.75,
-    threshold.zero         = 1e-2,
-    threshold.bottom       = -10
+    DF.dates               = DF.dates,
+    GDB.SpatialData        = GDB.SpatialData,
+    ncdf4.aridity          = ncdf4.aridity,
+    FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
     );
 
 ##################################################
