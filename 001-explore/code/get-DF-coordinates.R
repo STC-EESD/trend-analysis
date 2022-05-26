@@ -27,9 +27,7 @@ get.DF.coordinates <- function(
         pattern     = "^Y$",
         replacement = "y"
         );
-    print("A-1");
     sfarrow::st_write_parquet(obj = SF.SpatialData, dsn = parquet.SpatialData);
-    print("A-2");
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     x.coords <- sort(unique(unlist(sf::st_drop_geometry(SF.SpatialData[,'x']))));
@@ -44,10 +42,20 @@ get.DF.coordinates <- function(
         return(output.vector);
         }
 
+    get.integer.coordinate.indexes <- function(coordinates = NULL) {
+        which.x <- which( coordinates[1] == round(x.coords) );
+        which.y <- which( coordinates[2] == round(y.coords) );
+        if (length(which.x) == 0) { which.x <- NA };
+        if (length(which.y) == 0) { which.y <- NA };
+        output.vector <- c(which.x,which.y);
+        return(output.vector);
+        }
+
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     list.output <- list(
-        SF.SpatialData         = SF.SpatialData,
-        get.coordinate.indexes = get.coordinate.indexes
+        SF.SpatialData                 = SF.SpatialData,
+        get.coordinate.indexes         = get.coordinate.indexes,
+        get.integer.coordinate.indexes = get.integer.coordinate.indexes
         );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
