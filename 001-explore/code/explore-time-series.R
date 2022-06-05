@@ -61,11 +61,61 @@ explore.time.series <- function(
             count = c(1,1,n.months)
             );
 
+        temp.ts <- stats::ts(
+            data      = temp.series,
+            start     = c(1979, 1),
+            frequency = 12
+            );
+
         cat("\nstr(temp.series)\n");
         print( str(temp.series)   );
 
         cat("\nsummary(temp.series)\n");
         print( summary(temp.series)   );
+
+        results.SeasonalMannKendall <- Kendall::SeasonalMannKendall(x = temp.ts);
+        results.seasonalSenSlope    <- trend::sea.sens.slope(x = temp.ts);
+        results.smk.test            <- trend::smk.test(x = temp.ts, alternative = "two.sided");
+
+        DF.temp <- data.frame(
+            date  = DF.dates[,'date.index'],
+            value = temp.series
+            );
+
+        cat("\nstr(DF.temp)\n");
+        print( str(DF.temp)   );
+
+        results.mblm <- mblm::mblm(
+            formula   = value ~ date,
+            dataframe = DF.temp
+            );
+
+        cat("\nsummary(results.SeasonalMannKendall)\n");
+        print( summary(results.SeasonalMannKendall)   );
+
+        cat("\nresults.SeasonalMannKendall\n");
+        print( results.SeasonalMannKendall   );
+
+        cat("\nresults.seasonalSenSlope\n");
+        print( results.seasonalSenSlope   );
+
+        cat("\nstr(results.seasonalSenSlope)\n");
+        print( str(results.seasonalSenSlope)   );
+
+        cat("\nsummary(results.smk.test)\n");
+        print( summary(results.smk.test)   );
+
+        cat("\nstr(results.smk.test)\n");
+        print( str(results.smk.test)   );
+
+        cat("\nsummary(results.mblm)\n");
+        print( summary(results.mblm)   );
+
+        cat("\nresults.mblm\n");
+        print( results.mblm   );
+
+        cat("\nSF.stats[index.min.TestZ,]\n");
+        print( SF.stats[index.min.TestZ,]   );
 
         }
 
