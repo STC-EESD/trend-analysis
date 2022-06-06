@@ -3,6 +3,7 @@ generate.timeplots <- function(
     data.sets              = NULL,
     ncdf4.input            = NULL,
     get.coordinate.indexes = NULL,
+    SF.SpatialData         = NULL,
     threshold.top          = 3.75,
     threshold.zero         = 1e-2,
     threshold.bottom       = -10,
@@ -40,7 +41,7 @@ generate.timeplots <- function(
         cat("\n### processing:",temp.data.set,"\n");
 
         DF.coordinates.to.plot <- generate.timeplots_get.coordinates(
-            GDB.SpatialData  = GDB.SpatialData,
+            SF.SpatialData   = SF.SpatialData,
             dir.aridity      = dir.aridity,
             data.set         = temp.data.set,
             threshold.top    = threshold.top,
@@ -193,7 +194,7 @@ generate.timeplots_plot <- function(
     }
 
 generate.timeplots_get.coordinates <- function(
-    GDB.SpatialData  = NULL,
+    SF.SpatialData   = NULL,
     dir.aridity      = NULL,
     data.set         = NULL,
     threshold.top    = NULL,
@@ -203,22 +204,9 @@ generate.timeplots_get.coordinates <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     SF.stats <- getData.ts.stats(
-        GDB.SpatialData = GDB.SpatialData,
+        SF.SpatialData  = SF.SpatialData,
         CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(data.set,".csv")),
         parquet.output  = paste0("SF-",data.set,".parquet")
-        );
-    SF.stats <- cbind(sf::st_coordinates(SF.stats),SF.stats);
-
-    colnames(SF.stats) <- gsub(
-        x           = colnames(SF.stats),
-        pattern     = "^X$",
-        replacement = "x"
-        );
-
-    colnames(SF.stats) <- gsub(
-        x           = colnames(SF.stats),
-        pattern     = "^Y$",
-        replacement = "y"
         );
 
     SF.stats[,c('x.index','y.index')] <- t(apply(

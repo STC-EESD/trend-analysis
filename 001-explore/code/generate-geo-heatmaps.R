@@ -24,7 +24,7 @@ generate.geo.heatmaps <- function(
         cat("\nstr(SF.stats)\n");
         print( str(SF.stats)   );
 
-        numeric.colnames <- setdiff(colnames(SF.stats),c("pointID","Shape"));
+        numeric.colnames <- setdiff(colnames(SF.stats),c("pointID","x","y","Shape"));
         for ( temp.colname in numeric.colnames ) {
 
             palette.mid.point <- 0;
