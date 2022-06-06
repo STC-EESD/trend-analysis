@@ -140,10 +140,22 @@ getData.aridity(
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+for ( temp.data.set in data.sets ) {
+    cat("\n### processing:",temp.data.set,"\n");
+    SF.stats <- getData.ts.stats(
+        SF.SpatialData = SF.SpatialData,
+        CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
+        parquet.output = paste0("SF-",temp.data.set,".parquet")
+        );
+    cat("\nstr(SF.stats)\n");
+    print( str(SF.stats)   );
+    remove(list = c("SF.stats"));
+    }
+
 # generate.geo.heatmaps(
-#     data.sets       = data.sets,
-#     GDB.SpatialData = GDB.SpatialData,
-#     dir.aridity     = dir.aridity
+#     data.sets      = data.sets,
+#     SF.SpatialData = SF.SpatialData,
+#     dir.aridity    = dir.aridity
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
@@ -160,10 +172,28 @@ getData.aridity(
 explore.time.series(
     data.sets              = data.sets,
     DF.dates               = DF.dates,
-    GDB.SpatialData        = GDB.SpatialData,
+    SF.SpatialData         = SF.SpatialData,
     ncdf4.aridity          = ncdf4.aridity,
     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
     );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+my.FUN <- function(x) {
+    if(any(is.na(x))) {return(c(NA,NA))};
+    return(c(mean(x),var(x)))
+    }
+
+nc.obj.aridity <- ncdf4::nc_open(filename = ncdf4.aridity);
+ARRAY.deficit  <- ncdf4::ncvar_get(nc = nc.obj.aridity, varid = "deficit");
+ARRAY.temp     <- apply(X = ARRAY.deficit, MARGIN = c(1,2), FUN = my.FUN);
+ARRAY.temp     <- base::aperm(a = ARRAY.temp, perm = c(2,3,1));
+ncdf4::nc_close(nc = nc.obj.aridity);
+
+cat("\nstr(ARRAY.deficit)\n");
+print( str(ARRAY.deficit)   );
+
+cat("\nstr(ARRAY.temp)\n");
+print( str(ARRAY.temp)   );
 
 ##################################################
 print( warnings() );

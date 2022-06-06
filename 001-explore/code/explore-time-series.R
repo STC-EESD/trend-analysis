@@ -2,7 +2,7 @@
 explore.time.series <- function(
     data.sets              = NULL,
     DF.dates               = NULL,
-    GDB.SpatialData        = NULL,
+    SF.SpatialData         = NULL,
     ncdf4.aridity          = NULL,
     FILE.coords.to.indexes = NULL
     ){
@@ -31,9 +31,9 @@ explore.time.series <- function(
         temp.varid <- ifelse(test = grepl(x = temp.data.set, pattern = "deficit", ignore.case = TRUE), yes = "deficit", no = "stress");
 
         SF.stats <- getData.ts.stats(
-            GDB.SpatialData = GDB.SpatialData,
-            CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-            parquet.output  = paste0("SF-",temp.data.set,".parquet")
+            SF.SpatialData = SF.SpatialData,
+            CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
+            parquet.output = paste0("SF-",temp.data.set,".parquet")
             );
 
         cat("\nstr(SF.stats)\n");

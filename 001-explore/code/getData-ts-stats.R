@@ -1,8 +1,8 @@
 
 getData.ts.stats <- function(
-    GDB.SpatialData = NULL,
-    CSV.ts.stats    = NULL,
-    parquet.output  = "ts-stats.parquet"
+    SF.SpatialData = NULL,
+    CSV.ts.stats   = NULL,
+    parquet.output = "ts-stats.parquet"
     ) {
 
     thisFunctionName <- "getData.ts.stats";
@@ -25,21 +25,8 @@ getData.ts.stats <- function(
 
         cat(paste0("\nThe file ",parquet.output," does not yet exists; reading the file now ...\n"));
 
-        SF.SpatialData <- sf::st_read(GDB.SpatialData);
-
-        colnames(SF.SpatialData) <- gsub(
-            x           = colnames(SF.SpatialData),
-            pattern     = "pointid",
-            replacement = "pointID"
-            );
-
-        # SF.SpatialData <- cbind(
-        #     SF.SpatialData,
-        #     sf::st_coordinates(SF.SpatialData)
-        #     );
-
-        cat("\ntype(SF.SpatialData)\n");
-        print( type(SF.SpatialData)   );
+        cat("\ntypeof(SF.SpatialData)\n");
+        print( typeof(SF.SpatialData)   );
 
         cat("\nsf::st_crs(SF.SpatialData)\n");
         print( sf::st_crs(SF.SpatialData)   );

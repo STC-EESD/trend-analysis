@@ -27,6 +27,18 @@ get.DF.coordinates <- function(
         pattern     = "^Y$",
         replacement = "y"
         );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\nmax(abs(SF.SpatialData$x - round(SF.SpatialData$x)))\n");
+    print( max(abs(SF.SpatialData$x - round(SF.SpatialData$x)))   );
+
+    cat("\nmax(abs(SF.SpatialData$y - round(SF.SpatialData$y)))\n");
+    print( max(abs(SF.SpatialData$y - round(SF.SpatialData$y)))   );
+
+    SF.SpatialData$x <- round(SF.SpatialData$x);
+    SF.SpatialData$y <- round(SF.SpatialData$y);
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     sfarrow::st_write_parquet(obj = SF.SpatialData, dsn = parquet.SpatialData);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
