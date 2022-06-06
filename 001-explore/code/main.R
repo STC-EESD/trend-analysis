@@ -163,6 +163,7 @@ for ( temp.data.set in data.sets ) {
 #     data.sets              = data.sets,
 #     ncdf4.input            = ncdf4.aridity,
 #     get.coordinate.indexes = get.coordinate.indexes,
+#     SF.SpatialData         = SF.SpatialData,
 #     threshold.top          = 3.75,
 #     threshold.zero         = 1e-2,
 #     threshold.bottom       = -10
