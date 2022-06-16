@@ -1,7 +1,7 @@
 
 generate.geo.heatmaps <- function(
     data.sets      = NULL,
-    SF.SpatialData = NULL,
+    SF.coordinates = NULL,
     dir.aridity    = NULL
     ){
 
@@ -16,7 +16,7 @@ generate.geo.heatmaps <- function(
         cat("\n### processing:",temp.data.set,"\n");
 
         SF.stats <- getData.ts.stats(
-            SF.SpatialData = SF.SpatialData,
+            SF.coordinates = SF.coordinates,
             CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
             parquet.output = paste0("SF-",temp.data.set,".parquet")
             );

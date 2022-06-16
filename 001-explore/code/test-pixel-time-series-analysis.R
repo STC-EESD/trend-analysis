@@ -2,7 +2,7 @@
 test_pixel.timeq.series.analysis <- function(
     data.sets              = NULL,
     DF.dates               = NULL,
-    SF.SpatialData         = NULL,
+    SF.coordinates         = NULL,
     ncdf4.aridity          = NULL,
     FILE.coords.to.indexes = NULL,
     FUN.pixel              = NULL
@@ -29,7 +29,7 @@ test_pixel.timeq.series.analysis <- function(
         temp.varid <- ifelse(test = grepl(x = temp.data.set, pattern = "deficit", ignore.case = TRUE), yes = "deficit", no = "stress");
 
         SF.stats <- getData.ts.stats(
-            SF.SpatialData = SF.SpatialData,
+            SF.coordinates = SF.coordinates,
             CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
             parquet.output = paste0("SF-",temp.data.set,".parquet")
             );

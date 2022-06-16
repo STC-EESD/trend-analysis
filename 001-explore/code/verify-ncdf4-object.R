@@ -2,7 +2,7 @@
 verify.ncdf4.object <- function(
     ncdf4.input            = NULL,
     dir.aridity            = NULL,
-    DF.SpatialData         = NULL,
+    DF.coordinates         = NULL,
     DF.dates               = NULL,
     get.coordinate.indexes = NULL,
     DF.metadata            = NULL,
@@ -46,7 +46,7 @@ verify.ncdf4.object <- function(
                 dir.aridity            = dir.aridity,
                 directory              = directory,
                 txt.file               = txt.file,
-                DF.SpatialData         = DF.SpatialData,
+                DF.coordinates         = DF.coordinates,
                 get.coordinate.indexes = get.coordinate.indexes
                 );
 
@@ -138,14 +138,14 @@ verify.ncdf4.object_get.DF.txt <- function(
     dir.aridity            = NULL,
     directory              = NULL,
     txt.file               = NULL,
-    DF.SpatialData         = NULL,
+    DF.coordinates         = NULL,
     get.coordinate.indexes = NULL
     ) {
     DF.output <- read.csv(file.path(dir.aridity,directory,txt.file));
     colnames(DF.output) <- tolower(colnames(DF.output));
     DF.output <- DF.output[,setdiff(colnames(DF.output),'objectid')];
     colnames(DF.output) <- gsub(x = colnames(DF.output), pattern = "pointid", replacement = "pointID");
-    DF.output <- dplyr::left_join(x = DF.output, y = DF.SpatialData, by = "pointID");
+    DF.output <- dplyr::left_join(x = DF.output, y = DF.coordinates, by = "pointID");
     DF.output <- DF.output[order(DF.output[,'y'],DF.output['x']),];
     DF.output[,c('x.index','y.index')] <- t(apply(X = DF.output[,c('x','y')], MARGIN = 1, FUN = get.coordinate.indexes));
     leading.colnames <- c('pointID','x','y','x.index','y.index');

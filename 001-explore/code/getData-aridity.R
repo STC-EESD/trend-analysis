@@ -1,11 +1,12 @@
 
 getData.aridity <- function(
-    SF.SpatialData = NULL,
-    dir.aridity    = NULL,
-    DF.dates       = NULL,
-    DF.metadata    = NULL,
-    date.reference = as.Date("1970-01-01", tz = "UTC"),
-    ncdf4.output   = "data-aridity.nc"
+    GDB.SpatialData = NULL,
+    SF.coordinates  = NULL,
+    dir.aridity     = NULL,
+    DF.dates        = NULL,
+    DF.metadata     = NULL,
+    date.reference  = as.Date("1970-01-01", tz = "UTC"),
+    ncdf4.output    = "data-aridity.nc"
     ) {
 
     thisFunctionName <- "getData.aridity";
@@ -30,7 +31,7 @@ getData.aridity <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     list.vars <- getData.aridity_get.list.vars(
-        SF.SpatialData = SF.SpatialData,
+        SF.coordinates = SF.coordinates,
         DF.metadata    = DF.metadata,
         date.reference = date.reference,
         DF.dates       = DF.dates
@@ -62,7 +63,7 @@ getData.aridity <- function(
             ncdf4.object   = output.ncdf4.object,
             variable       = DF.metadata[metadatum.index,'variable'     ],
             sub.directory  = DF.metadata[metadatum.index,'sub.directory'],
-            DF.coordinates = sf::st_drop_geometry(SF.SpatialData),
+            DF.coordinates = sf::st_drop_geometry(SF.coordinates),
             DF.dates       = DF.dates
             );
         }
@@ -166,16 +167,16 @@ getData.aridity_put.variable <- function(
     }
 
 getData.aridity_get.list.vars <- function(
-    SF.SpatialData = NULL,
+    SF.coordinates = NULL,
     DF.metadata    = NULL,
     date.reference = NULL,
     DF.dates       = NULL
     ){
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    spatial.units <- sf::st_crs(SF.SpatialData)$units;
-    vals.x <- sort(unique(unlist(  sf::st_drop_geometry(SF.SpatialData[,'x'])  )));
-    vals.y <- sort(unique(unlist(  sf::st_drop_geometry(SF.SpatialData[,'y'])  )));
+    spatial.units <- sf::st_crs(SF.coordinates)$units;
+    vals.x <- sort(unique(unlist(  sf::st_drop_geometry(SF.coordinates[,'x'])  )));
+    vals.y <- sort(unique(unlist(  sf::st_drop_geometry(SF.coordinates[,'y'])  )));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     dimension.x <- ncdf4::ncdim_def(

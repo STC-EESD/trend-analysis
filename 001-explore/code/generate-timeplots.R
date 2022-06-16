@@ -3,7 +3,7 @@ generate.timeplots <- function(
     data.sets              = NULL,
     ncdf4.input            = NULL,
     get.coordinate.indexes = NULL,
-    SF.SpatialData         = NULL,
+    SF.coordinates         = NULL,
     threshold.top          = 3.75,
     threshold.zero         = 1e-2,
     threshold.bottom       = -10,
@@ -41,7 +41,7 @@ generate.timeplots <- function(
         cat("\n### processing:",temp.data.set,"\n");
 
         DF.coordinates.to.plot <- generate.timeplots_get.coordinates(
-            SF.SpatialData   = SF.SpatialData,
+            SF.coordinates   = SF.coordinates,
             dir.aridity      = dir.aridity,
             data.set         = temp.data.set,
             threshold.top    = threshold.top,
@@ -194,7 +194,7 @@ generate.timeplots_plot <- function(
     }
 
 generate.timeplots_get.coordinates <- function(
-    SF.SpatialData   = NULL,
+    SF.coordinates   = NULL,
     dir.aridity      = NULL,
     data.set         = NULL,
     threshold.top    = NULL,
@@ -204,7 +204,7 @@ generate.timeplots_get.coordinates <- function(
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     SF.stats <- getData.ts.stats(
-        SF.SpatialData  = SF.SpatialData,
+        SF.coordinates  = SF.coordinates,
         CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(data.set,".csv")),
         parquet.output  = paste0("SF-",data.set,".parquet")
         );

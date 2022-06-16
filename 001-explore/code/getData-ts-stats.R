@@ -1,6 +1,6 @@
 
 getData.ts.stats <- function(
-    SF.SpatialData = NULL,
+    SF.coordinates = NULL,
     CSV.ts.stats   = NULL,
     parquet.output = "ts-stats.parquet"
     ) {
@@ -25,17 +25,17 @@ getData.ts.stats <- function(
 
         cat(paste0("\nThe file ",parquet.output," does not yet exists; reading the file now ...\n"));
 
-        cat("\ntypeof(SF.SpatialData)\n");
-        print( typeof(SF.SpatialData)   );
+        cat("\ntypeof(SF.coordinates)\n");
+        print( typeof(SF.coordinates)   );
 
-        cat("\nsf::st_crs(SF.SpatialData)\n");
-        print( sf::st_crs(SF.SpatialData)   );
+        cat("\nsf::st_crs(SF.coordinates)\n");
+        print( sf::st_crs(SF.coordinates)   );
 
-        cat("\ncolnames(SF.SpatialData)\n");
-        print( colnames(SF.SpatialData)   );
+        cat("\ncolnames(SF.coordinates)\n");
+        print( colnames(SF.coordinates)   );
 
-        cat("\nstr(SF.SpatialData)\n");
-        print( str(SF.SpatialData)   );
+        cat("\nstr(SF.coordinates)\n");
+        print( str(SF.coordinates)   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         SF.output <- read.csv(file = CSV.ts.stats);
@@ -63,15 +63,15 @@ getData.ts.stats <- function(
         print( str(SF.output)   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        cat("\nsetdiff( SF.SpatialData$pointID , SF.output$pointID )\n");
-        print( setdiff( SF.SpatialData$pointID , SF.output$pointID )   );
+        cat("\nsetdiff( SF.coordinates$pointID , SF.output$pointID )\n");
+        print( setdiff( SF.coordinates$pointID , SF.output$pointID )   );
 
-        cat("\nsetdiff( SF.output$pointID , SF.SpatialData$pointID )\n");
-        print( setdiff( SF.output$pointID , SF.SpatialData$pointID )   );
+        cat("\nsetdiff( SF.output$pointID , SF.coordinates$pointID )\n");
+        print( setdiff( SF.output$pointID , SF.coordinates$pointID )   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         SF.output <- dplyr::inner_join(
-            x  = SF.SpatialData,
+            x  = SF.coordinates,
             y  = SF.output,
             by = "pointID"
             );

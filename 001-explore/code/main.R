@@ -36,8 +36,9 @@ code.files <- c(
     "generate-timeplots.R",
     "get-DF-coordinates.R",
     "get-DF-dates.R",
-    "getData-ts-stats.R",
     "getData-aridity.R",
+    "getData-linear-arima.R",
+    "getData-ts-stats.R",
     "getData-water.R",
     "initializePlot.R",
     "nc-apply-3to2D.R",
@@ -73,7 +74,7 @@ data.sets <- c("WaterDeficit","WaterStress");
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 date.reference      <- as.Date("1970-01-01", tz = "UTC");
 parquet.dates       <- "DF-dates.parquet";
-parquet.SpatialData <- "SF-SpatialData.parquet";
+parquet.coordinates <- "SF-coordinates.parquet";
 ncdf4.water         <- "data-MELAKE-MPREC.nc";
 ncdf4.aridity       <- "data-aridity.nc";
 
@@ -86,9 +87,9 @@ arrow::write_parquet(x = DF.dates, sink = parquet.dates);
 
 temp.list <- get.DF.coordinates(
     GDB.SpatialData     = GDB.SpatialData,
-    parquet.SpatialData = parquet.SpatialData
+    parquet.coordinates = parquet.coordinates
     );
-SF.SpatialData         <- temp.list[['SF.SpatialData'        ]];
+SF.coordinates         <- temp.list[['SF.coordinates'        ]];
 get.coordinate.indexes <- temp.list[['get.coordinate.indexes']];
 
 base::saveRDS(
@@ -123,64 +124,77 @@ DF.metadata <- data.frame(
     );
 
 getData.aridity(
-    SF.SpatialData = SF.SpatialData,
-    DF.dates       = DF.dates,
-    dir.aridity    = dir.aridity,
-    DF.metadata    = DF.metadata,
-    ncdf4.output   = ncdf4.aridity
+    GDB.SpatialData = GDB.SpatialData,
+    SF.coordinates  = SF.coordinates,
+    DF.dates        = DF.dates,
+    dir.aridity     = dir.aridity,
+    DF.metadata     = DF.metadata,
+    ncdf4.output    = ncdf4.aridity
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# verify.ncdf4.object(
-#     ncdf4.input            = ncdf4.aridity,
-#     dir.aridity            = dir.aridity,
-#     DF.SpatialData         = sf::st_drop_geometry(SF.SpatialData),
-#     DF.dates               = DF.dates,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     DF.metadata            = data.frame(
-#         varid     = c('deficit',          'stress'          ),
-#         directory = c('Water_Deficit_TXT','Water_Stress_TXT')
-#         )
-#     );
+verify.ncdf4.object(
+    ncdf4.input            = ncdf4.aridity,
+    dir.aridity            = dir.aridity,
+    DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
+    DF.dates               = DF.dates,
+    get.coordinate.indexes = get.coordinate.indexes,
+    DF.metadata            = data.frame(
+        varid     = c('deficit',          'stress'          ),
+        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+        )
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 for ( temp.data.set in data.sets ) {
-    cat("\n### processing:",temp.data.set,"\n");
+    cat("\n### processing (Sen Slope):",temp.data.set,"\n");
+    temp.stem <- stringr::str_extract(string = tolower(temp.data.set), pattern = "(deficit|stress)");
     SF.stats <- getData.ts.stats(
-        SF.SpatialData = SF.SpatialData,
+        SF.coordinates = SF.coordinates,
         CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-        parquet.output = paste0("SF-",temp.data.set,".parquet")
+        parquet.output = paste0("SF-Zdenek-",temp.stem,"-SenSlope.parquet")
         );
     cat("\nstr(SF.stats)\n");
     print( str(SF.stats)   );
     remove(list = c("SF.stats"));
     }
 
-# generate.geo.heatmaps(
-#     data.sets      = data.sets,
-#     SF.SpatialData = SF.SpatialData,
-#     dir.aridity    = dir.aridity
-#     );
+for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
+    cat("\n### processing (linear, ARIMA):",temp.folder,"\n");
+    temp.stem <- stringr::str_extract(string = tolower(temp.folder), pattern = "(deficit|stress)");
+    getData.linear.arima(
+        SF.coordinates = SF.coordinates,
+        directory      = file.path(dir.aridity,temp.folder),
+        parquet.linear = paste0("SF-Zdenek-",temp.stem,"-linear.parquet"),
+        parquet.arima  = paste0("SF-Zdenek-",temp.stem,"-arima.parquet")
+        );
+    }
+
+generate.geo.heatmaps(
+    data.sets      = data.sets,
+    SF.coordinates = SF.coordinates,
+    dir.aridity    = dir.aridity
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# generate.timeplots(
-#     data.sets              = data.sets,
-#     ncdf4.input            = ncdf4.aridity,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     SF.SpatialData         = SF.SpatialData,
-#     threshold.top          = 3.75,
-#     threshold.zero         = 1e-2,
-#     threshold.bottom       = -10
-#     );
+generate.timeplots(
+    data.sets              = data.sets,
+    ncdf4.input            = ncdf4.aridity,
+    get.coordinate.indexes = get.coordinate.indexes,
+    SF.coordinates         = SF.coordinates,
+    threshold.top          = 3.75,
+    threshold.zero         = 1e-2,
+    threshold.bottom       = -10
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# explore.time.series(
-#     data.sets              = data.sets,
-#     DF.dates               = DF.dates,
-#     SF.SpatialData         = SF.SpatialData,
-#     ncdf4.aridity          = ncdf4.aridity,
-#     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
-#     );
+explore.time.series(
+    data.sets              = data.sets,
+    DF.dates               = DF.dates,
+    SF.coordinates         = SF.coordinates,
+    ncdf4.aridity          = ncdf4.aridity,
+    FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # my.FUN <- function(x) {
@@ -201,13 +215,13 @@ for ( temp.data.set in data.sets ) {
 # print( str(ARRAY.temp)   );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-test_array.3D.to.2D();
+# test_array.3D.to.2D();
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # test_pixel.timeq.series.analysis(
 #     data.sets              = data.sets,
 #     DF.dates               = DF.dates,
-#     SF.SpatialData         = SF.SpatialData,
+#     SF.coordinates         = SF.coordinates,
 #     ncdf4.aridity          = ncdf4.aridity,
 #     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData",
 #     FUN.pixel              = pixel.timeq.series.analysis
@@ -240,7 +254,7 @@ DF.ts.deficit <- nc_apply_3to2D(
     );
 
 DF.ts.deficit <- sf::st_drop_geometry(dplyr::left_join(
-    x  = SF.SpatialData,
+    x  = SF.coordinates,
     y  = DF.ts.deficit,
     by = c('x','y')
     ));
