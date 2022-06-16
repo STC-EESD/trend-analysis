@@ -44,6 +44,9 @@ explore.time.series <- function(
         cat("\nstr(index.min.TestZ)\n");
         print( str(index.min.TestZ)   );
 
+        cat("\nSF.stats[index.min.TestZ,]\n");
+        print( SF.stats[index.min.TestZ,]   );
+
         temp.xy <- round(as.numeric(sf::st_coordinates(SF.stats[index.min.TestZ,])));
 
         cat("\nstr(temp.xy)\n");
