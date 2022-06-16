@@ -73,10 +73,6 @@ getData.linear.arima_arima <- function(
             path  = file.path(directory,temp.file),
             sheet = "Arima"
             ));
-
-        cat("\nstr(DF.temp)\n");
-        print( str(DF.temp)   );
-
         colnames(DF.temp) <- tolower(colnames(DF.temp));
         colnames(DF.temp) <- gsub(
             x           = colnames(DF.temp),
@@ -104,19 +100,7 @@ getData.linear.arima_arima <- function(
             replacement = ""
             );
         DF.temp[,'pointID'] <- as.numeric(DF.temp[,'pointID']);
-
-        cat("\nstr(DF.output)\n");
-        print( str(DF.output)   );
-
-        cat("\nstr(DF.temp)\n");
-        print( str(DF.temp)   );
-
-        print("A-1");
-
         DF.output <- rbind(DF.output,DF.temp);
-
-        print("A-2");
-
         }
 
     SF.output <- dplyr::left_join(

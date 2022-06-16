@@ -170,6 +170,7 @@ for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
         );
     }
 
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 generate.geo.heatmaps(
     data.sets      = data.sets,
     SF.coordinates = SF.coordinates,
