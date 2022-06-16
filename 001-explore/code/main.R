@@ -40,7 +40,11 @@ code.files <- c(
     "getData-aridity.R",
     "getData-water.R",
     "initializePlot.R",
+    "nc-apply-3to2D.R",
+    "pixel-time-series-analysis.R",
     "plot-geo-heatmap.R",
+    "test-array-3D-to-2D.R",
+    "test-pixel-time-series-analysis.R",
     "utils-rgb.R",
     "verify-ncdf4-object.R"
     );
@@ -170,31 +174,112 @@ for ( temp.data.set in data.sets ) {
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-explore.time.series(
-    data.sets              = data.sets,
-    DF.dates               = DF.dates,
-    SF.SpatialData         = SF.SpatialData,
-    ncdf4.aridity          = ncdf4.aridity,
-    FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
-    );
+# explore.time.series(
+#     data.sets              = data.sets,
+#     DF.dates               = DF.dates,
+#     SF.SpatialData         = SF.SpatialData,
+#     ncdf4.aridity          = ncdf4.aridity,
+#     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-my.FUN <- function(x) {
-    if(any(is.na(x))) {return(c(NA,NA))};
-    return(c(mean(x),var(x)))
-    }
+# my.FUN <- function(x) {
+#     if(any(is.na(x))) {return(c(NA,NA))};
+#     return(c(mean(x),var(x)))
+#     }
+#
+# nc.obj.aridity <- ncdf4::nc_open(filename = ncdf4.aridity);
+# ARRAY.deficit  <- ncdf4::ncvar_get(nc = nc.obj.aridity, varid = "deficit");
+# ARRAY.temp     <- apply(X = ARRAY.deficit, MARGIN = c(1,2), FUN = my.FUN);
+# ARRAY.temp     <- base::aperm(a = ARRAY.temp, perm = c(2,3,1));
+# ncdf4::nc_close(nc = nc.obj.aridity);
+#
+# cat("\nstr(ARRAY.deficit)\n");
+# print( str(ARRAY.deficit)   );
+#
+# cat("\nstr(ARRAY.temp)\n");
+# print( str(ARRAY.temp)   );
 
-nc.obj.aridity <- ncdf4::nc_open(filename = ncdf4.aridity);
-ARRAY.deficit  <- ncdf4::ncvar_get(nc = nc.obj.aridity, varid = "deficit");
-ARRAY.temp     <- apply(X = ARRAY.deficit, MARGIN = c(1,2), FUN = my.FUN);
-ARRAY.temp     <- base::aperm(a = ARRAY.temp, perm = c(2,3,1));
-ncdf4::nc_close(nc = nc.obj.aridity);
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+test_array.3D.to.2D();
 
-cat("\nstr(ARRAY.deficit)\n");
-print( str(ARRAY.deficit)   );
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+# test_pixel.timeq.series.analysis(
+#     data.sets              = data.sets,
+#     DF.dates               = DF.dates,
+#     SF.SpatialData         = SF.SpatialData,
+#     ncdf4.aridity          = ncdf4.aridity,
+#     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData",
+#     FUN.pixel              = pixel.timeq.series.analysis
+#     );
+#
+# nc.obj.aridity <- ncdf4::nc_open(filename = ncdf4.aridity);
+# ARRAY.deficit  <- ncdf4::ncvar_get(nc = nc.obj.aridity, varid = "deficit");
+# ARRAY.temp     <- apply(X = ARRAY.deficit, MARGIN = c(1,2), FUN = pixel.time.series.analysis);
+# ARRAY.temp     <- base::aperm(a = ARRAY.temp, perm = c(2,3,1));
+# ncdf4::nc_close(nc = nc.obj.aridity);
+#
+# cat("\nstr(ARRAY.deficit)\n");
+# print( str(ARRAY.deficit)   );
+#
+# cat("\nstr(ARRAY.temp)\n");
+# print( str(ARRAY.temp)   );
+#
+# base::saveRDS(
+#     object = ARRAY.temp,
+#     file   = "array-temp.RData"
+#     );
 
-cat("\nstr(ARRAY.temp)\n");
-print( str(ARRAY.temp)   );
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+DF.ts.deficit <- nc_apply_3to2D(
+    nc             = ncdf4.aridity,
+    varid          = "deficit",
+    MARGIN         = c(1,2),
+    FUN            = pixel.time.series.analysis,
+    parquet.output = "DF-ts-deficit.parquet"
+    );
+
+DF.ts.deficit <- sf::st_drop_geometry(dplyr::left_join(
+    x  = SF.SpatialData,
+    y  = DF.ts.deficit,
+    by = c('x','y')
+    ));
+
+cat("\nstr(DF.ts.deficit)\n");
+print( str(DF.ts.deficit)   );
+
+cat("\nsummary(DF.ts.deficit)\n");
+print( summary(DF.ts.deficit)   );
+
+SF.stats.deficit <- sfarrow::st_read_parquet("SF-WaterDeficit.parquet");
+
+cat("\nstr(SF.stats.deficit)\n");
+print( str(SF.stats.deficit)   );
+
+cat("\nsummary(SF.stats.deficit)\n");
+print( summary(SF.stats.deficit)   );
+
+DF.check <- sf::st_drop_geometry(dplyr::left_join(
+    x  = SF.stats.deficit,
+    y  = DF.ts.deficit,
+    by = c('pointID','x','y')
+    ));
+
+DF.check[,'check.Sen.Slope'  ] <- abs(DF.check[,'Sen.Slope'  ] - DF.check[,'SenQ'  ]);
+DF.check[,'check.Z.statistic'] <- abs(DF.check[,'Z.statistic'] - DF.check[,'TestZ' ]);
+DF.check[,'check.p.value'    ] <- abs(DF.check[,'p.value'    ] - DF.check[,'PValue']);
+
+cat("\nsummary(DF.check[,c('check.Sen.Slope','check.Z.statistic','check.p.value')])\n");
+print( summary(DF.check[,c('check.Sen.Slope','check.Z.statistic','check.p.value')])   );
+
+# selected.colnames <- c('pointID','x','y','SenQ','Sen.Slope','TestZ','Z.statistic','PValue','p.value','check.Sen.Slope','check.Z.statistic','check.p.value');
+# selected.colnames <- c('pointID','x','y','SenQ','Sen.Slope','TestZ','Z.statistic','PValue','p.value');
+selected.colnames <- c('pointID','x','y','TestZ','Z.statistic','PValue','p.value');
+is.selected <- (DF.check[,'check.Z.statistic'] > 1e-4) | (DF.check[,'check.p.value'] > 1e-4);
+cat("\nDF.check[is.selected,selected.colnames]\n");
+print( DF.check[is.selected,selected.colnames]   );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
 ##################################################
 print( warnings() );
