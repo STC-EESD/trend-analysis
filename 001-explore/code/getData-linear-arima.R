@@ -31,17 +31,17 @@ getData.linear.arima <- function(
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # if ( file.exists(parquet.arima) ) {
-    #     cat(paste0("\nThe file ",parquet.arima," already exists; do nothing ...\n"));
-    #     # SF.output <- sfarrow::st_read_parquet(dsn = parquet.linear);
-    # } else {
-    #     cat(paste0("\nThe file ",parquet.arima," does not yet exists; loading data ...\n"));
-    #     getData.linear.arima_arima(
-    #         SF.coordinates = SF.coordinates,
-    #         directory      = directory,
-    #         parquet.arima  = parquet.arima
-    #         );
-    #     }
+    if ( file.exists(parquet.arima) ) {
+        cat(paste0("\nThe file ",parquet.arima," already exists; do nothing ...\n"));
+        # SF.output <- sfarrow::st_read_parquet(dsn = parquet.linear);
+    } else {
+        cat(paste0("\nThe file ",parquet.arima," does not yet exists; loading data ...\n"));
+        getData.linear.arima_arima(
+            SF.coordinates = SF.coordinates,
+            directory      = directory,
+            parquet.arima  = parquet.arima
+            );
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() exits."));
