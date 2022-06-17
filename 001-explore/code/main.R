@@ -133,17 +133,17 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# verify.ncdf4.object(
-#     ncdf4.input            = ncdf4.aridity,
-#     dir.aridity            = dir.aridity,
-#     DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
-#     DF.dates               = DF.dates,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     DF.metadata            = data.frame(
-#         varid     = c('deficit',          'stress'          ),
-#         directory = c('Water_Deficit_TXT','Water_Stress_TXT')
-#         )
-#     );
+verify.ncdf4.object(
+    ncdf4.input            = ncdf4.aridity,
+    dir.aridity            = dir.aridity,
+    DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
+    DF.dates               = DF.dates,
+    get.coordinate.indexes = get.coordinate.indexes,
+    DF.metadata            = data.frame(
+        varid     = c('deficit',          'stress'          ),
+        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+        )
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 for ( temp.data.set in data.sets ) {
@@ -171,30 +171,30 @@ for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
     }
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# generate.geo.heatmaps(
-#     data.sets      = data.sets,
-#     SF.coordinates = SF.coordinates,
-#     dir.aridity    = dir.aridity
-#     );
-#
-# generate.timeplots(
-#     data.sets              = data.sets,
-#     ncdf4.input            = ncdf4.aridity,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     SF.coordinates         = SF.coordinates,
-#     threshold.top          = 3.75,
-#     threshold.zero         = 1e-2,
-#     threshold.bottom       = -10
-#     );
+generate.geo.heatmaps(
+    data.sets      = data.sets,
+    SF.coordinates = SF.coordinates,
+    dir.aridity    = dir.aridity
+    );
+
+generate.timeplots(
+    data.sets              = data.sets,
+    ncdf4.input            = ncdf4.aridity,
+    get.coordinate.indexes = get.coordinate.indexes,
+    SF.coordinates         = SF.coordinates,
+    threshold.top          = 3.75,
+    threshold.zero         = 1e-2,
+    threshold.bottom       = -10
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# explore.time.series(
-#     data.sets              = data.sets,
-#     DF.dates               = DF.dates,
-#     SF.coordinates         = SF.coordinates,
-#     ncdf4.aridity          = ncdf4.aridity,
-#     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
-#     );
+explore.time.series(
+    data.sets              = data.sets,
+    DF.dates               = DF.dates,
+    SF.coordinates         = SF.coordinates,
+    ncdf4.aridity          = ncdf4.aridity,
+    FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # my.FUN <- function(x) {
@@ -218,7 +218,7 @@ for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
 # test_array.3D.to.2D();
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# test_pixel.timeq.series.analysis(
+# test_pixel.time.series.analysis(
 #     data.sets              = data.sets,
 #     DF.dates               = DF.dates,
 #     SF.coordinates         = SF.coordinates,
