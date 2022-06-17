@@ -177,7 +177,6 @@ generate.geo.heatmaps(
     dir.aridity    = dir.aridity
     );
 
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 generate.timeplots(
     data.sets              = data.sets,
     ncdf4.input            = ncdf4.aridity,
