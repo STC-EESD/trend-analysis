@@ -1,5 +1,5 @@
 
-test_pixel.timeq.series.analysis <- function(
+test_pixel.time.series.analysis <- function(
     data.sets              = NULL,
     DF.dates               = NULL,
     SF.coordinates         = NULL,
@@ -8,7 +8,7 @@ test_pixel.timeq.series.analysis <- function(
     FUN.pixel              = NULL
     ){
 
-    thisFunctionName <- "test_pixel.timeq.series.analysis";
+    thisFunctionName <- "test_pixel.time.series.analysis";
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     nc.obj.aridity <- ncdf4::nc_open(ncdf4.aridity);
