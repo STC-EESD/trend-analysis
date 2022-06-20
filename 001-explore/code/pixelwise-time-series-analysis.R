@@ -9,19 +9,7 @@ pixelwise.time.series.analysis <- function(x) {
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     if( any(is.na(x)) ) {
 
-        output.vector <- c(
-            Sen.slope             = NA,
-            smk.z.stat            = NA,
-            smk.p.value           = NA,
-            lm.slope.estimate     = NA,
-            lm.slope.stderr       = NA,
-            lm.slope.t.value      = NA,
-            lm.slope.p.value      = NA,
-            lm.intercept.estimate = NA,
-            lm.intercept.stderr   = NA,
-            lm.intercept.t.value  = NA,
-            lm.intercept.p.value  = NA
-            );
+        output.vector <- rep(x = NA, times = 11);
 
     } else {
 
@@ -61,6 +49,21 @@ pixelwise.time.series.analysis <- function(x) {
             );
 
         }
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    attr(x = output.vector, which = "names") <- c(
+        "Sen.slope",
+        "smk.z.stat",
+        "smk.p.value",
+        "lm.slope.estimate",
+        "lm.slope.stderr",
+        "lm.slope.t.value",
+        "lm.slope.p.value",
+        "lm.intercept.estimate",
+        "lm.intercept.stderr",
+        "lm.intercept.t.value",
+        "lm.intercept.p.value"
+        );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     # cat(paste0("\n# ",thisFunctionName,"() exits."));
