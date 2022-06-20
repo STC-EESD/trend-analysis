@@ -4,7 +4,8 @@ nc_apply_3to2D <- function(
     varid          = NULL,
     MARGIN         = NULL,
     FUN            = "identity",
-    parquet.output = "nc_apply_3to2D.parquet"
+    parquet.output = "nc_apply_3to2D.parquet",
+    RData.output   = gsub(x = gsub(x = parquet.output, pattern = "\\.parquet", ".RData"), pattern = "^DF-", replacement = "tmp-A3D-")
     ) {
 
     thisFunctionName <- "nc_apply_3to2D";
@@ -31,30 +32,38 @@ nc_apply_3to2D <- function(
     nc.obj <- ncdf4::nc_open(filename = nc);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    input.array  <- ncdf4::ncvar_get(nc = nc.obj, varid = varid);
-
-    if ( "function" == class(FUN) ) {
-        output.array <- apply(X = input.array, MARGIN = MARGIN, FUN = FUN);
-        output.colunmn.indexes <- c(setdiff(seq(1,length(dim(output.array))),MARGIN),MARGIN);
-        output.array <- base::aperm(a = output.array, perm = order(output.colunmn.indexes));
-        dimnames.output.array <- list();
-        dimnames.output.array[[ nc.obj[['dim']][[1]][['name']] ]] <- nc.obj[['dim']][[1]][['vals']];
-        dimnames.output.array[[ nc.obj[['dim']][[2]][['name']] ]] <- nc.obj[['dim']][[2]][['vals']];
-        dimnames.output.array[[ 'statistics' ]] <- dimnames(output.array)[[3]];
-        dimnames(output.array) <- dimnames.output.array;
+    if ( file.exists(RData.output) ) {
+        cat("\n");
+        cat(paste0("The file ",RData.output," already exists; loading the file ..."));
+        cat("\n");
+        output.array <- readRDS(file = RData.output);
     } else {
-        output.array <- input.array;
-        dimnames.output.array <- list();
-        dimnames.output.array[[ nc.obj[['dim']][[1]][['name']] ]] <- nc.obj[['dim']][[1]][['vals']];
-        dimnames.output.array[[ nc.obj[['dim']][[2]][['name']] ]] <- nc.obj[['dim']][[2]][['vals']];
-        reference.Date <- nc.obj[['dim']][['time']][['units']];
-        reference.Date <- gsub(x = reference.Date, pattern = "days since ", replacement = "");
-        reference.Date <- as.Date(reference.Date);
-        dimnames.output.array[[ nc.obj[['dim']][[3]][['name']] ]] <- as.character(reference.Date + nc.obj[['dim']][[3]][['vals']]);
-        dimnames(output.array) <- dimnames.output.array;
+        cat("\n");
+        cat(paste0("The file ",RData.output," does NOT yet exist; creating the output array ..."));
+        cat("\n");
+        input.array  <- ncdf4::ncvar_get(nc = nc.obj, varid = varid);
+        if ( "function" == class(FUN) ) {
+            output.array <- apply(X = input.array, MARGIN = MARGIN, FUN = FUN);
+            output.colunmn.indexes <- c(setdiff(seq(1,length(dim(output.array))),MARGIN),MARGIN);
+            output.array <- base::aperm(a = output.array, perm = order(output.colunmn.indexes));
+            dimnames.output.array <- list();
+            dimnames.output.array[[ nc.obj[['dim']][[1]][['name']] ]] <- nc.obj[['dim']][[1]][['vals']];
+            dimnames.output.array[[ nc.obj[['dim']][[2]][['name']] ]] <- nc.obj[['dim']][[2]][['vals']];
+            dimnames.output.array[[ 'statistics' ]] <- dimnames(output.array)[[3]];
+            dimnames(output.array) <- dimnames.output.array;
+        } else {
+            output.array <- input.array;
+            dimnames.output.array <- list();
+            dimnames.output.array[[ nc.obj[['dim']][[1]][['name']] ]] <- nc.obj[['dim']][[1]][['vals']];
+            dimnames.output.array[[ nc.obj[['dim']][[2]][['name']] ]] <- nc.obj[['dim']][[2]][['vals']];
+            reference.Date <- nc.obj[['dim']][['time']][['units']];
+            reference.Date <- gsub(x = reference.Date, pattern = "days since ", replacement = "");
+            reference.Date <- as.Date(reference.Date);
+            dimnames.output.array[[ nc.obj[['dim']][[3]][['name']] ]] <- as.character(reference.Date + nc.obj[['dim']][[3]][['vals']]);
+            dimnames(output.array) <- dimnames.output.array;
+            }
+        saveRDS(file = RData.output, object = output.array);
         }
-
-    # saveRDS(file = "DF-output-array.RData", object = output.array);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     output.matrix <- nc_apply_3to2D_array.3D.to.2D(
@@ -90,6 +99,16 @@ nc_apply_3to2D_array.3D.to.2D <- function(
 
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     cat(paste0("\n# ",thisFunctionName,"() starts.\n"));
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\ndim(input.array.3D)\n");
+    print( dim(input.array.3D)   );
+
+    cat("\ndimnames(input.array.3D)\n");
+    print( dimnames(input.array.3D)   );
+
+    cat("\nstr(input.array.3D)\n");
+    print( str(input.array.3D)   );
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     output.matrix <- cbind(
