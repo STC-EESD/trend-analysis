@@ -52,11 +52,14 @@ nc_apply_3to2D <- function(
         dimnames(input.array) <- dimnames.input.array;
 
         if ( "function" == class(FUN) ) {
-            output.array <- apply(X = input.array, MARGIN = MARGIN, FUN = FUN);
-            saveRDS(file = "tmp-diagnostics-output-array.RData", object = output.array);
+            if ( file.exists("tmp-diagnostics-output-array.RData") ) {
+                output.array <- readRDS(file = "tmp-diagnostics-output-array.RData");
+            } else {
+                output.array <- apply(X = input.array, MARGIN = MARGIN, FUN = FUN);
+                saveRDS(file = "tmp-diagnostics-output-array.RData", object = output.array);
+                }
             output.colunmn.indexes <- c(setdiff(seq(1,length(dim(output.array))),MARGIN),MARGIN);
             output.array <- base::aperm(a = output.array, perm = order(output.colunmn.indexes));
-            # names(dimnames(output.array))[3] <- "statistics";
             names(dimnames(output.array)) <- gsub(x = names(dimnames(output.array)), pattern = "^$", replacement = "statistics");
         } else {
             output.array <- input.array;
