@@ -1,7 +1,7 @@
 
-pixel.time.series.analysis <- function(x) {
+pixelwise.time.series.analysis <- function(x) {
 
-    thisFunctionName <- "pixel.time.series.analysis";
+    thisFunctionName <- "pixelwise.time.series.analysis";
 
     # cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###");
     # cat(paste0("\n# ",thisFunctionName,"() starts.\n"));

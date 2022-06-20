@@ -1,14 +1,14 @@
 
-test_pixel.time.series.analysis <- function(
+test_pixelwise.time.series.analysis <- function(
     data.sets              = NULL,
     DF.dates               = NULL,
     SF.coordinates         = NULL,
     ncdf4.aridity          = NULL,
     FILE.coords.to.indexes = NULL,
-    FUN.pixel              = NULL
+    FUN.pixelwise          = NULL
     ){
 
-    thisFunctionName <- "test_pixel.time.series.analysis";
+    thisFunctionName <- "test_pixelwise.time.series.analysis";
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     nc.obj.aridity <- ncdf4::nc_open(ncdf4.aridity);
@@ -60,10 +60,10 @@ test_pixel.time.series.analysis <- function(
             count = c(1,1,n.months)
             );
 
-        results.FUN.pixel <- FUN.pixel(x = temp.series);
+        results.FUN.pixelwise <- FUN.pixelwise(x = temp.series);
 
-        cat("\nstr(results.FUN.pixel)\n");
-        print( str(results.FUN.pixel)   );
+        cat("\nstr(results.FUN.pixelwise)\n");
+        print( str(results.FUN.pixelwise)   );
 
         cat("\nSF.stats[index.min.TestZ,]\n");
         print( SF.stats[index.min.TestZ,]   );
