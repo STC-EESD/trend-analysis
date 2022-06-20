@@ -104,16 +104,11 @@ getData.linear.arima_linear <- function(
         DF.temp.2 <- DF.temp.2[,setdiff(colnames(DF.temp.2),c('groupID','pointID'))];
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-        cat("\nstr(DF.temp.1)\n");
-        print( str(DF.temp.1)   );
-
-        print( "A-1" );
         DF.temp.1[,'pointID'] <- as.numeric(gsub(
             x           = DF.temp.1[,'pointID'],
             pattern     = "^X_",
             replacement = ""
             ));
-        print( "A-2" );
         colnames(DF.temp.1) <- paste0(colnames(DF.temp.1),".slope");
         colnames(DF.temp.1) <- gsub(
             x           = colnames(DF.temp.1),
