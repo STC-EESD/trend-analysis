@@ -28,22 +28,47 @@ test_pixelwise.time.series.analysis <- function(
 
         temp.varid <- ifelse(test = grepl(x = temp.data.set, pattern = "deficit", ignore.case = TRUE), yes = "deficit", no = "stress");
 
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         temp.stem <- stringr::str_extract(string = tolower(temp.data.set), pattern = "(deficit|stress)");
-        SF.stats <- getData.ts.stats(
+        SF.ZP.SenSlope <- getData.ts.stats(
             SF.coordinates = SF.coordinates,
             CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
             parquet.output = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
             );
 
-        cat("\nstr(SF.stats)\n");
-        print( str(SF.stats)   );
+        cat("\nstr(SF.ZP.SenSlope)\n");
+        print( str(SF.ZP.SenSlope)   );
 
-        index.min.TestZ <- which(SF.stats$TestZ == min(SF.stats$TestZ));
+        SF.ZP.linear <- getData.ts.stats(
+            SF.coordinates = SF.coordinates,
+            CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
+            parquet.output = paste0("SF-ZP-",temp.stem,"-linear.parquet")
+            );
+
+        cat("\nstr(SF.ZP.linear)\n");
+        print( str(SF.ZP.linear)   );
+
+        SF.ZP.arima <- getData.ts.stats(
+            SF.coordinates = SF.coordinates,
+            CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
+            parquet.output = paste0("SF-ZP-",temp.stem,"-arima.parquet")
+            );
+
+        cat("\nstr(SF.ZP.arima)\n");
+        print( str(SF.ZP.arima)   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        index.min.TestZ <- which(SF.ZP.SenSlope$TestZ == max(SF.ZP.SenSlope$TestZ));
 
         cat("\nstr(index.min.TestZ)\n");
         print( str(index.min.TestZ)   );
 
-        temp.xy <- round(as.numeric(sf::st_coordinates(SF.stats[index.min.TestZ,])));
+        temp.pointID <- as.integer(sf::st_drop_geometry(SF.ZP.SenSlope[index.min.TestZ,'pointID']));
+
+        cat("\nstr(temp.pointID)\n");
+        print( str(temp.pointID)   );
+
+        temp.xy <- round(as.numeric(sf::st_coordinates(SF.ZP.SenSlope[index.min.TestZ,])));
 
         cat("\nstr(temp.xy)\n");
         print( str(temp.xy)   );
@@ -53,6 +78,7 @@ test_pixelwise.time.series.analysis <- function(
         cat("\nstr(temp.xy.indexes)\n");
         print( str(temp.xy.indexes)   );
 
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         temp.series <- ncvar_get(
             nc    = nc.obj.aridity,
             varid = temp.varid,
@@ -62,11 +88,21 @@ test_pixelwise.time.series.analysis <- function(
 
         results.FUN.pixelwise <- FUN.pixelwise(x = temp.series);
 
-        cat("\nstr(results.FUN.pixelwise)\n");
-        print( str(results.FUN.pixelwise)   );
+        cat("\nresults.FUN.pixelwise\n");
+        print( results.FUN.pixelwise   );
 
-        cat("\nSF.stats[index.min.TestZ,]\n");
-        print( SF.stats[index.min.TestZ,]   );
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        cat("\nSF.ZP.SenSlope[SF.ZP.SenSlope$pointID == temp.pointID,]\n");
+        print( SF.ZP.SenSlope[SF.ZP.SenSlope$pointID == temp.pointID,]   );
+
+        cat("\nSF.ZP.linear[SF.ZP.linear$pointID == temp.pointID,]\n");
+        print( SF.ZP.linear[SF.ZP.linear$pointID == temp.pointID,]   );
+
+        # cat("\nSF.ZP.arima[SF.ZP.arima$pointID == temp.pointID,]\n");
+        # print( SF.ZP.arima[SF.ZP.arima$pointID == temp.pointID,]   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        test_pixelwise.time.series.analysis_new.methods(x = temp.series);
 
         }
 
@@ -76,6 +112,67 @@ test_pixelwise.time.series.analysis <- function(
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n# ",thisFunctionName,"() exits."));
     cat("\n### ~~~~~~~~~~~~~~~~~~~~ ###\n");
+    return( NULL );
+
+    }
+
+##################################################
+test_pixelwise.time.series.analysis_new.methods <- function(
+    x = NULL
+    ) {
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    results.lm <- stats::lm(
+        formula = x ~ time,
+        # data  = data.frame(time = seq(0,455), x = x)
+        data    = data.frame(time = seq(1,456), x = x)
+        );
+
+    cat("\nsummary(results.lm)\n");
+    print( summary(results.lm)   );
+
+    # cat("\nresults.lm\n");
+    # print( results.lm   );
+    #
+    # cat("\nstr(results.lm)\n");
+    # print( str(results.lm)   );
+    #
+    # cat("\nstr(summary(results.lm))\n");
+    # print( str(summary(results.lm))   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    temp.ts <- stats::ts(
+        data      = x,
+        start     = c(1979, 1),
+        frequency = 12
+        );
+
+    results.tslm.trend <- forecast::tslm(formula = temp.ts ~ trend);
+
+    cat("\nsummary(results.tslm.trend)\n");
+    print( summary(results.tslm.trend)   );
+
+    cat("\nsummary(results.tslm.trend)[['coefficients']]\n");
+    print( summary(results.tslm.trend)[['coefficients']]   );
+
+    results.tslm.trend.season <- forecast::tslm(formula = temp.ts ~ trend + season);
+
+    cat("\nsummary(results.tslm.trend.season)\n");
+    print( summary(results.tslm.trend.season)   );
+
+    cat("\nsummary(results.tslm.trend.season)[['coefficients']]\n");
+    print( summary(results.tslm.trend.season)[['coefficients']]   );
+
+    # cat("\nresults.tslm\n");
+    # print( results.tslm   );
+    #
+    # cat("\nstr(results.tslm)\n");
+    # print( str(results.tslm)   );
+    #
+    # cat("\nstr(summary(results.tslm))\n");
+    # print( str(summary(results.tslm))   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     return( NULL );
 
     }
