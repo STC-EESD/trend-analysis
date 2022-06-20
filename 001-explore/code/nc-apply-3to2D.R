@@ -39,18 +39,10 @@ nc_apply_3to2D <- function(
         output.array <- readRDS(file = RData.output);
         # names(dimnames(output.array))[3] <- "statistics";
     } else {
-
         cat("\n");
         cat(paste0("The file ",RData.output," does NOT yet exist; creating the output array ..."));
         cat("\n");
-
         input.array  <- ncdf4::ncvar_get(nc = nc.obj, varid = varid);
-        dimnames.input.array <- list();
-        for ( dim.index in seq(1,length(nc.obj[['dim']])) ) {
-            dimnames.input.array[[ nc.obj[['dim']][[dim.index]][['name']] ]] <- nc.obj[['dim']][[dim.index]][['vals']];
-            }
-        dimnames(input.array) <- dimnames.input.array;
-
         if ( "function" == class(FUN) ) {
             if ( file.exists("tmp-diagnostics-output-array.RData") ) {
                 output.array <- readRDS(file = "tmp-diagnostics-output-array.RData");
@@ -60,7 +52,11 @@ nc_apply_3to2D <- function(
                 }
             output.colunmn.indexes <- c(setdiff(seq(1,length(dim(output.array))),MARGIN),MARGIN);
             output.array <- base::aperm(a = output.array, perm = order(output.colunmn.indexes));
-            names(dimnames(output.array)) <- gsub(x = names(dimnames(output.array)), pattern = "^$", replacement = "statistics");
+            dimnames.output.array <- list();
+            dimnames.output.array[[ nc.obj[['dim']][[1]][['name']] ]] <- nc.obj[['dim']][[1]][['vals']];
+            dimnames.output.array[[ nc.obj[['dim']][[2]][['name']] ]] <- nc.obj[['dim']][[2]][['vals']];
+            dimnames.output.array[[ 'statistics' ]] <- dimnames(output.array)[[3]];
+            dimnames(output.array) <- dimnames.output.array;
         } else {
             output.array <- input.array;
             dimnames.output.array <- list();
@@ -72,9 +68,7 @@ nc_apply_3to2D <- function(
             dimnames.output.array[[ nc.obj[['dim']][[3]][['name']] ]] <- as.character(reference.Date + nc.obj[['dim']][[3]][['vals']]);
             dimnames(output.array) <- dimnames.output.array;
             }
-
         saveRDS(file = RData.output, object = output.array);
-
         }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
