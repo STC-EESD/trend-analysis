@@ -35,11 +35,11 @@ pixelwise.time.series.analysis <- function(x) {
             frequency = 12
             );
 
-        results.SeasonalMannKendall <- Kendall::SeasonalMannKendall(x = temp.ts);
-        results.seasonalSenSlope    <- trend::sea.sens.slope(x = temp.ts);
-        results.smk.test            <- trend::smk.test(x = temp.ts, alternative = "two.sided");
-        results.tslm.trend          <- forecast::tslm(formula = temp.ts ~ trend);
-        results.tslm.trend.season   <- forecast::tslm(formula = temp.ts ~ trend + season);
+        # results.SeasonalMannKendall <- Kendall::SeasonalMannKendall(x = temp.ts);
+        results.seasonalSenSlope  <- trend::sea.sens.slope(x = temp.ts);
+        results.smk.test          <- trend::smk.test(x = temp.ts, alternative = "two.sided");
+        results.tslm.trend        <- forecast::tslm(formula = temp.ts ~ trend);
+        results.tslm.trend.season <- forecast::tslm(formula = temp.ts ~ trend + season);
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         coeffs.results.tslm.trend.season <- summary(results.tslm.trend.season)[['coefficients']];
