@@ -32,7 +32,7 @@ test_pixel.time.series.analysis <- function(
         SF.stats <- getData.ts.stats(
             SF.coordinates = SF.coordinates,
             CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-            parquet.output = paste0("SF-Zdenek-",temp.stem,"-SenSlope.parquet")
+            parquet.output = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
             );
 
         cat("\nstr(SF.stats)\n");

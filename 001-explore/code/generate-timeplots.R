@@ -207,7 +207,7 @@ generate.timeplots_get.coordinates <- function(
     SF.stats <- getData.ts.stats(
         SF.coordinates  = SF.coordinates,
         CSV.ts.stats    = file.path(dir.aridity,"From_Zdenek",paste0(data.set,".csv")),
-        parquet.output  = paste0("SF-Zdenek-",temp.stem,"-SenSlope.parquet")
+        parquet.output  = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
         );
 
     SF.stats[,c('x.index','y.index')] <- t(apply(

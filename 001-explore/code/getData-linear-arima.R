@@ -2,8 +2,8 @@
 getData.linear.arima <- function(
     SF.coordinates = NULL,
     directory      = NULL,
-    parquet.linear = paste0("SF-Zdenek-linear.parquet"),
-    parquet.arima  = paste0("SF-Zdenek-arima.parquet")
+    parquet.linear = paste0("SF-ZP-linear.parquet"),
+    parquet.arima  = paste0("SF-ZP-arima.parquet")
     ) {
 
     thisFunctionName <- "getData.linear.arima";
