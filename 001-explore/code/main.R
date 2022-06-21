@@ -253,19 +253,53 @@ DF.check <- dplyr::left_join(
     by = c('pointID','x','y')
     );
 
-DF.check[,'check.Sen.Slope'  ] <- abs(DF.check[,'Sen.slope'  ] - DF.check[,'SenQ'  ]);
-DF.check[,'check.smk.z.stat' ] <- abs(DF.check[,'smk.z.stat' ] - DF.check[,'TestZ' ]);
-DF.check[,'check.smk.p.value'] <- abs(DF.check[,'smk.p.value'] - DF.check[,'PValue']);
+FUN.relative.error <- function(x) {
+    if ( all(x == c(0,0)) ) {
+        return( 0 );
+    } else {
+        return( abs(diff(x)/mean(x)) )
+        }
+    }
+
+DF.check[,'check.Sen.Slope'  ] <- apply(X = DF.check[,c('Sen.slope',  'SenQ'  )], MARGIN = 1, FUN = FUN.relative.error);
+DF.check[,'check.smk.z.stat' ] <- apply(X = DF.check[,c('smk.z.stat', 'TestZ' )], MARGIN = 1, FUN = FUN.relative.error);
+DF.check[,'check.smk.p.value'] <- apply(X = DF.check[,c('smk.p.value','PValue')], MARGIN = 1, FUN = FUN.relative.error);
 
 cat("\nsummary(DF.check[,c('check.Sen.Slope','check.smk.z.stat','check.smk.p.value')])\n");
 print( summary(DF.check[,c('check.Sen.Slope','check.smk.z.stat','check.smk.p.value')])   );
 
-# selected.colnames <- c('pointID','x','y','SenQ','Sen.Slope','TestZ','Z.statistic','PValue','p.value','check.Sen.Slope','check.Z.statistic','check.p.value');
-# selected.colnames <- c('pointID','x','y','SenQ','Sen.Slope','TestZ','Z.statistic','PValue','p.value');
-selected.colnames <- c('pointID','x','y','TestZ','check.smk.z.stat','PValue','check.smk.p.value');
-is.selected <- (DF.check[,'check.smk.z.stat'] > 1e-2) | (DF.check[,'check.smk.p.value'] > 1e-4);
+is.selected <- (DF.check[,'check.smk.z.stat'] > 1e-2);
+cat("\nsum(is.selected)\n");
+print( sum(is.selected)   );
+
+selected.colnames <- c('pointID','TestZ','smk.z.stat','check.smk.z.stat');
 cat("\nDF.check[is.selected,selected.colnames]\n");
 print( DF.check[is.selected,selected.colnames]   );
+
+is.selected <- (DF.check[,'check.smk.p.value'] > 1e-2);
+cat("\nsum(is.selected)\n");
+print( sum(is.selected)   );
+
+selected.colnames <- c('pointID','PValue','smk.p.value','check.smk.p.value');
+DF.temp <- DF.check[is.selected,];
+saveRDS(file = "tmp-check.RData", object = DF.temp);
+
+DF.temp[,'PValue'] <- format(x = DF.temp[,'PValue'], scientific = TRUE);
+cat("\nDF.check[is.selected,selected.colnames]\n");
+print( DF.temp[ 1:100,      selected.colnames]   );
+
+DF.temp <- DF.check[is.selected,];
+DF.temp[,'smk.p.value'] <- round( x = DF.temp[,'smk.p.value'], digits = 5);
+DF.temp[,'check.smk.p.value'] <- apply(X = DF.temp[,c('smk.p.value','PValue')], MARGIN = 1, FUN = FUN.relative.error);
+DF.temp[,'PValue'] <- format(x = DF.temp[,'PValue'], scientific = TRUE);
+is.selected <- (DF.temp[,'check.smk.p.value'] > 9e-2);
+cat("\nsum(is.selected)\n");
+print( sum(is.selected)   );
+
+DF.temp       <- DF.temp[is.selected,];
+display.order <- order(DF.temp[,'check.smk.p.value'], decreasing = TRUE);
+cat("\nDF.temp[display.order,selected.colnames]\n");
+print( DF.temp[display.order,selected.colnames]   );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
