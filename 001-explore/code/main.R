@@ -31,6 +31,7 @@ require(zoo);
 
 # source supporting R code
 code.files <- c(
+    "check-statistics.R",
     "explore-time-series.R",
     "generate-geo-heatmaps.R",
     "generate-timeplots.R",
@@ -206,100 +207,19 @@ test_pixelwise.time.series.analysis(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-DF.KC.deficit.ts.stats <- nc_apply_3to2D(
-    nc             = ncdf4.aridity,
+check.statistcs(
     varid          = "deficit",
-    MARGIN         = c(1,2),
-    FUN            = pixelwise.time.series.analysis,
-    parquet.output = "DF-KC-deficit-ts-tats.parquet"
+    SF.coordinates = SF.coordinates,
+    ncdf4.aridity  = ncdf4.aridity,
+    FUN.pixelwise  = pixelwise.time.series.analysis
     );
 
-DF.KC.deficit.ts.stats <- sf::st_drop_geometry(dplyr::left_join(
-    x  = SF.coordinates,
-    y  = DF.KC.deficit.ts.stats,
-    by = c('x','y')
-    ));
-
-cat("\nstr(DF.KC.deficit.ts.stats)\n");
-print( str(DF.KC.deficit.ts.stats)   );
-
-cat("\nsummary(DF.KC.deficit.ts.stats)\n");
-print( summary(DF.KC.deficit.ts.stats)   );
-
-SF.ZP.deficit.SenSlope <- sfarrow::st_read_parquet("SF-ZP-deficit-SenSlope.parquet");
-SF.ZP.deficit.linear   <- sfarrow::st_read_parquet("SF-ZP-deficit-linear.parquet");
-
-cat("\nstr(SF.ZP.deficit.SenSlope)\n");
-print( str(SF.ZP.deficit.SenSlope)   );
-
-cat("\nsummary(SF.ZP.deficit.SenSlope)\n");
-print( summary(SF.ZP.deficit.SenSlope)   );
-
-cat("\nstr(SF.ZP.deficit.linear)\n");
-print( str(SF.ZP.deficit.linear)   );
-
-cat("\nsummary(SF.ZP.deficit.linear)\n");
-print( summary(SF.ZP.deficit.linear)   );
-
-DF.check <- dplyr::left_join(
-    x  = sf::st_drop_geometry(SF.ZP.deficit.SenSlope),
-    y  = sf::st_drop_geometry(SF.ZP.deficit.linear),
-    by = c('pointID','x','y')
-    );
-
-DF.check <- dplyr::left_join(
-    x  = DF.check,
-    y  = DF.KC.deficit.ts.stats,
-    by = c('pointID','x','y')
-    );
-
-FUN.relative.error <- function(x) {
-    if ( all(x == c(0,0)) ) {
-        return( 0 );
-    } else {
-        return( abs(diff(x)/mean(x)) )
-        }
-    }
-
-DF.check[,'check.Sen.Slope'  ] <- apply(X = DF.check[,c('Sen.slope',  'SenQ'  )], MARGIN = 1, FUN = FUN.relative.error);
-DF.check[,'check.smk.z.stat' ] <- apply(X = DF.check[,c('smk.z.stat', 'TestZ' )], MARGIN = 1, FUN = FUN.relative.error);
-DF.check[,'check.smk.p.value'] <- apply(X = DF.check[,c('smk.p.value','PValue')], MARGIN = 1, FUN = FUN.relative.error);
-
-cat("\nsummary(DF.check[,c('check.Sen.Slope','check.smk.z.stat','check.smk.p.value')])\n");
-print( summary(DF.check[,c('check.Sen.Slope','check.smk.z.stat','check.smk.p.value')])   );
-
-is.selected <- (DF.check[,'check.smk.z.stat'] > 1e-2);
-cat("\nsum(is.selected)\n");
-print( sum(is.selected)   );
-
-selected.colnames <- c('pointID','TestZ','smk.z.stat','check.smk.z.stat');
-cat("\nDF.check[is.selected,selected.colnames]\n");
-print( DF.check[is.selected,selected.colnames]   );
-
-is.selected <- (DF.check[,'check.smk.p.value'] > 1e-2);
-cat("\nsum(is.selected)\n");
-print( sum(is.selected)   );
-
-selected.colnames <- c('pointID','PValue','smk.p.value','check.smk.p.value');
-DF.temp <- DF.check[is.selected,];
-saveRDS(file = "tmp-check.RData", object = DF.temp);
-
-DF.temp[,'PValue'] <- format(x = DF.temp[,'PValue'], scientific = TRUE);
-cat("\nDF.check[is.selected,selected.colnames]\n");
-print( DF.temp[ 1:100,      selected.colnames]   );
-
-DF.temp <- DF.check[is.selected,];
-DF.temp[,'smk.p.value'] <- round( x = DF.temp[,'smk.p.value'], digits = 5);
-DF.temp[,'check.smk.p.value'] <- apply(X = DF.temp[,c('smk.p.value','PValue')], MARGIN = 1, FUN = FUN.relative.error);
-DF.temp[,'PValue'] <- format(x = DF.temp[,'PValue'], scientific = TRUE);
-is.selected <- (DF.temp[,'check.smk.p.value'] > 9e-2);
-cat("\nsum(is.selected)\n");
-print( sum(is.selected)   );
-
-DF.temp       <- DF.temp[is.selected,];
-display.order <- order(DF.temp[,'check.smk.p.value'], decreasing = TRUE);
-cat("\nDF.temp[display.order,selected.colnames]\n");
-print( DF.temp[display.order,selected.colnames]   );
+# check.statistcs(
+#     varid          = "stress",
+#     SF.coordinates = SF.coordinates,
+#     ncdf4.aridity  = ncdf4.aridity,
+#     FUN.pixelwise  = pixelwise.time.series.analysis
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
