@@ -207,12 +207,12 @@ test_pixelwise.time.series.analysis(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-check.statistcs(
-    varid          = "deficit",
-    SF.coordinates = SF.coordinates,
-    ncdf4.aridity  = ncdf4.aridity,
-    FUN.pixelwise  = pixelwise.time.series.analysis
-    );
+# check.statistcs(
+#     varid          = "deficit",
+#     SF.coordinates = SF.coordinates,
+#     ncdf4.aridity  = ncdf4.aridity,
+#     FUN.pixelwise  = pixelwise.time.series.analysis
+#     );
 
 # check.statistcs(
 #     varid          = "stress",
