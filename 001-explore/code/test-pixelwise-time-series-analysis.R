@@ -86,6 +86,8 @@ test_pixelwise.time.series.analysis <- function(
             count = c(1,1,n.months)
             );
 
+        saveRDS(file = "tmp-single-time-series.RData", object = temp.series);
+
         results.FUN.pixelwise <- FUN.pixelwise(x = temp.series);
 
         cat("\nresults.FUN.pixelwise\n");
