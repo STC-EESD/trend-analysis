@@ -44,11 +44,12 @@ nc_apply_3to2D <- function(
         cat("\n");
         input.array  <- ncdf4::ncvar_get(nc = nc.obj, varid = varid);
         if ( "function" == class(FUN) ) {
-            if ( file.exists("tmp-diagnostics-output-array.RData") ) {
-                output.array <- readRDS(file = "tmp-diagnostics-output-array.RData");
+            RData.diagnostics <- paste0("tmp-diagnostics-",varid,".RData");
+            if ( file.exists(RData.diagnostics) ) {
+                output.array <- readRDS(file = RData.diagnostics);
             } else {
                 output.array <- apply(X = input.array, MARGIN = MARGIN, FUN = FUN);
-                saveRDS(file = "tmp-diagnostics-output-array.RData", object = output.array);
+                saveRDS(file = RData.diagnostics, object = output.array);
                 }
             output.colunmn.indexes <- c(setdiff(seq(1,length(dim(output.array))),MARGIN),MARGIN);
             output.array <- base::aperm(a = output.array, perm = order(output.colunmn.indexes));
