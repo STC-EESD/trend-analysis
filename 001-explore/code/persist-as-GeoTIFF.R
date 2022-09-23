@@ -65,6 +65,9 @@ persist.as.GeoTIFF_inner <- function(
     cat(paste0("\n",thisFunctionName,"() starts.\n\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    cat("\n### date:",date.string,"\n");
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     require(raster);
     require(terra);
 
