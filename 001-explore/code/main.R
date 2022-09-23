@@ -151,10 +151,10 @@ getData.aridity(
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# persist.as.GeoTIFF(
-#     ncdf4.input      = ncdf4.aridity,
-#     output.directory = "geotiffs"
-#     );
+persist.as.GeoTIFF(
+    ncdf4.input.file = ncdf4.aridity,
+    DF.dates         = DF.dates
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # for ( temp.data.set in data.sets ) {
