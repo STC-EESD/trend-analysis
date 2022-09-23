@@ -10,36 +10,44 @@ get.DF.coordinates <- function(
     cat(paste0("\n# ",thisFunctionName,"() starts.\n"));
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    SF.coordinates <- sf::st_read(GDB.SpatialData);
-    SF.coordinates <- cbind(SF.coordinates,sf::st_coordinates(SF.coordinates));
-    colnames(SF.coordinates) <- gsub(
-        x           = colnames(SF.coordinates),
-        pattern     = "pointid",
-        replacement = "pointID"
-        );
-    colnames(SF.coordinates) <- gsub(
-        x           = colnames(SF.coordinates),
-        pattern     = "^X$",
-        replacement = "x"
-        );
-    colnames(SF.coordinates) <- gsub(
-        x           = colnames(SF.coordinates),
-        pattern     = "^Y$",
-        replacement = "y"
-        );
+    if ( file.exists(parquet.coordinates) ) {
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    cat("\nmax(abs(SF.coordinates$x - round(SF.coordinates$x)))\n");
-    print( max(abs(SF.coordinates$x - round(SF.coordinates$x)))   );
+        SF.coordinates <- sfarrow::st_read_parquet(dsn = parquet.coordinates);
 
-    cat("\nmax(abs(SF.coordinates$y - round(SF.coordinates$y)))\n");
-    print( max(abs(SF.coordinates$y - round(SF.coordinates$y)))   );
+    } else {
 
-    SF.coordinates$x <- round(SF.coordinates$x);
-    SF.coordinates$y <- round(SF.coordinates$y);
+        SF.coordinates <- sf::st_read(GDB.SpatialData);
+        SF.coordinates <- cbind(SF.coordinates,sf::st_coordinates(SF.coordinates));
+        colnames(SF.coordinates) <- gsub(
+            x           = colnames(SF.coordinates),
+            pattern     = "pointid",
+            replacement = "pointID"
+            );
+        colnames(SF.coordinates) <- gsub(
+            x           = colnames(SF.coordinates),
+            pattern     = "^X$",
+            replacement = "x"
+            );
+        colnames(SF.coordinates) <- gsub(
+            x           = colnames(SF.coordinates),
+            pattern     = "^Y$",
+            replacement = "y"
+            );
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    sfarrow::st_write_parquet(obj = SF.coordinates, dsn = parquet.coordinates);
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        cat("\nmax(abs(SF.coordinates$x - round(SF.coordinates$x)))\n");
+        print( max(abs(SF.coordinates$x - round(SF.coordinates$x)))   );
+
+        cat("\nmax(abs(SF.coordinates$y - round(SF.coordinates$y)))\n");
+        print( max(abs(SF.coordinates$y - round(SF.coordinates$y)))   );
+
+        SF.coordinates$x <- round(SF.coordinates$x);
+        SF.coordinates$y <- round(SF.coordinates$y);
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        sfarrow::st_write_parquet(obj = SF.coordinates, dsn = parquet.coordinates);
+
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     x.coords <- sort(unique(unlist(sf::st_drop_geometry(SF.coordinates[,'x']))));

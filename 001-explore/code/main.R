@@ -43,6 +43,7 @@ code.files <- c(
     "getData-water.R",
     "initializePlot.R",
     "nc-apply-3to2D.R",
+    "persist-as-GeoTIFF.R",
     "pixelwise-time-series-analysis.R",
     "plot-geo-heatmap.R",
     "test-array-3D-to-2D.R",
@@ -83,9 +84,9 @@ RData.get.integer.coordinate.indexes <- "get-integer-coordinate-indexes.RData";
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 DF.dates <- get.DF.dates(
-    date.reference = date.reference
+    date.reference = date.reference,
+    parquet.dates  = parquet.dates
     );
-arrow::write_parquet(x = DF.dates, sink = parquet.dates);
 
 temp.list <- get.DF.coordinates(
     GDB.SpatialData     = GDB.SpatialData,
@@ -94,10 +95,12 @@ temp.list <- get.DF.coordinates(
 SF.coordinates         <- temp.list[['SF.coordinates'        ]];
 get.coordinate.indexes <- temp.list[['get.coordinate.indexes']];
 
-base::saveRDS(
-    file   = RData.get.integer.coordinate.indexes,
-    object = temp.list[['get.integer.coordinate.indexes']]
-    );
+if ( !file.exists(RData.get.integer.coordinate.indexes) ) {
+    base::saveRDS(
+        file   = RData.get.integer.coordinate.indexes,
+        object = temp.list[['get.integer.coordinate.indexes']]
+        );
+    }
 
 rm(list = "temp.list"); gc();
 
@@ -135,17 +138,23 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-verify.ncdf4.object(
-    ncdf4.input            = ncdf4.aridity,
-    dir.aridity            = dir.aridity,
-    DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
-    DF.dates               = DF.dates,
-    get.coordinate.indexes = get.coordinate.indexes,
-    DF.metadata            = data.frame(
-        varid     = c('deficit',          'stress'          ),
-        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
-        )
-    );
+# verify.ncdf4.object(
+#     ncdf4.input            = ncdf4.aridity,
+#     dir.aridity            = dir.aridity,
+#     DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
+#     DF.dates               = DF.dates,
+#     get.coordinate.indexes = get.coordinate.indexes,
+#     DF.metadata            = data.frame(
+#         varid     = c('deficit',          'stress'          ),
+#         directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+#         )
+#     );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+# persist.as.GeoTIFF(
+#     ncdf4.input      = ncdf4.aridity,
+#     output.directory = "geotiffs"
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # for ( temp.data.set in data.sets ) {
