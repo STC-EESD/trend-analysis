@@ -100,8 +100,8 @@ test_pixelwise.time.series.analysis <- function(
         cat("\nSF.ZP.linear[SF.ZP.linear$pointID == temp.pointID,]\n");
         print( SF.ZP.linear[SF.ZP.linear$pointID == temp.pointID,]   );
 
-        # cat("\nSF.ZP.arima[SF.ZP.arima$pointID == temp.pointID,]\n");
-        # print( SF.ZP.arima[SF.ZP.arima$pointID == temp.pointID,]   );
+        cat("\nSF.ZP.arima[SF.ZP.arima$pointID == temp.pointID,]\n");
+        print( SF.ZP.arima[SF.ZP.arima$pointID == temp.pointID,]   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         test_pixelwise.time.series.analysis_new.methods(x = temp.series);
@@ -124,14 +124,14 @@ test_pixelwise.time.series.analysis_new.methods <- function(
     ) {
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    results.lm <- stats::lm(
-        formula = x ~ time,
-        # data  = data.frame(time = seq(0,455), x = x)
-        data    = data.frame(time = seq(1,456), x = x)
-        );
-
-    cat("\nsummary(results.lm)\n");
-    print( summary(results.lm)   );
+    # results.lm <- stats::lm(
+    #     formula = x ~ time,
+    #     # data  = data.frame(time = seq(0,455), x = x)
+    #     data    = data.frame(time = seq(1,456), x = x)
+    #     );
+    #
+    # cat("\nsummary(results.lm)\n");
+    # print( summary(results.lm)   );
 
     # cat("\nresults.lm\n");
     # print( results.lm   );
@@ -149,21 +149,22 @@ test_pixelwise.time.series.analysis_new.methods <- function(
         frequency = 12
         );
 
-    results.tslm.trend <- forecast::tslm(formula = temp.ts ~ trend);
-
-    cat("\nsummary(results.tslm.trend)\n");
-    print( summary(results.tslm.trend)   );
-
-    cat("\nsummary(results.tslm.trend)[['coefficients']]\n");
-    print( summary(results.tslm.trend)[['coefficients']]   );
-
-    results.tslm.trend.season <- forecast::tslm(formula = temp.ts ~ trend + season);
-
-    cat("\nsummary(results.tslm.trend.season)\n");
-    print( summary(results.tslm.trend.season)   );
-
-    cat("\nsummary(results.tslm.trend.season)[['coefficients']]\n");
-    print( summary(results.tslm.trend.season)[['coefficients']]   );
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    # results.tslm.trend <- forecast::tslm(formula = temp.ts ~ trend);
+    #
+    # cat("\nsummary(results.tslm.trend)\n");
+    # print( summary(results.tslm.trend)   );
+    #
+    # cat("\nsummary(results.tslm.trend)[['coefficients']]\n");
+    # print( summary(results.tslm.trend)[['coefficients']]   );
+    #
+    # results.tslm.trend.season <- forecast::tslm(formula = temp.ts ~ trend + season);
+    #
+    # cat("\nsummary(results.tslm.trend.season)\n");
+    # print( summary(results.tslm.trend.season)   );
+    #
+    # cat("\nsummary(results.tslm.trend.season)[['coefficients']]\n");
+    # print( summary(results.tslm.trend.season)[['coefficients']]   );
 
     # cat("\nresults.tslm\n");
     # print( results.tslm   );
@@ -173,6 +174,38 @@ test_pixelwise.time.series.analysis_new.methods <- function(
     #
     # cat("\nstr(summary(results.tslm))\n");
     # print( str(summary(results.tslm))   );
+
+    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+    temp.orders <- list(
+
+        c(0L,0L,0L),
+        c(0L,0L,1L),
+        c(0L,1L,0L),
+        c(0L,1L,1L),
+
+        c(1L,0L,0L),
+        c(1L,0L,1L),
+        c(1L,1L,0L),
+        c(1L,1L,1L)
+
+        );
+
+    # for ( temp.order in temp.orders ) {
+    for ( p in seq(0,5) ) {
+    for ( d in c(0)     ) {
+    for ( q in seq(0,5) ) {
+
+        temp.order <- c(p,d,q);
+        results.arima <- stats::arima(
+            x        = temp.ts,
+            order    = temp.order,
+            seasonal = list(order = c(1,0,0)),
+            xreg     = stats::time(temp.ts) - 1979
+            );
+        cat("\nresults.arima -- temp.order = c(",paste(temp.order,collapse=","),")\n");
+        print( results.arima   );
+
+        }}}
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     return( NULL );
