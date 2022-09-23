@@ -102,33 +102,6 @@ persist.as.GeoTIFF_inner <- function(
         )[['value']];
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    list.layers <- list();
-    for ( var.name in var.names ) {
-        DF.temp <- ncdf4::ncvar_get(
-            nc    = ncdf4.input.object,
-            varid = var.name,
-            start = c(1,1,date.index),
-            count = c(n.x,n.y,1)
-            );
-        DF.temp <- DF.temp[,seq(ncol(DF.temp),1,-1)];
-        layer.temp <- raster::raster(
-            nrows = n.y,
-            ncols = n.x,
-            crs   = crs.string
-            );
-        raster::values(layer.temp) <- t(DF.temp);
-        list.layers[[var.name]] <- layer.temp;
-        }
-
-    remove(list = c(
-        'layer.temp','DF.temp'
-        ));
-    gc();
-
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    my.stack <- raster::stack(x = list.layers);
-    names(my.stack) <- names(list.layers);
-
     matrix.extent <- matrix(
         data  = c(x.min,x.max,y.min,y.max),
         nrow  = 2,
@@ -136,30 +109,61 @@ persist.as.GeoTIFF_inner <- function(
         byrow = TRUE
         );
 
-    my.stack <- raster::setExtent(
-        x   = my.stack,
-        ext = raster::extent(matrix.extent)
-        );
-
-    my.rast <- terra::rast(x = my.stack);
-
-    cat("\nclass(my.rast)\n");
-    print( class(my.rast)   );
-
-    cat("\nnames(my.rast)\n");
-    print( names(my.rast)   );
-
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    tiff.file.output <- file.path(output.directory,paste0(date.string,".tiff"));
+    for ( var.name in var.names ) {
 
-    # raster::writeRaster(x = my.stack, filename = tiff.file.output);
-    terra::writeRaster(x = my.rast, filename = tiff.file.output);
+        DF.temp <- ncdf4::ncvar_get(
+            nc    = ncdf4.input.object,
+            varid = var.name,
+            start = c(1,1,date.index),
+            count = c(n.x,n.y,1)
+            );
+        DF.temp <- DF.temp[,seq(ncol(DF.temp),1,-1)];
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    remove(list = c(
-        'my.stack','my.rast','tiff.file.output','list.layers','n.y','n.x'
-        ));
-    gc();
+        layer.temp <- raster::raster(
+            nrows = n.y,
+            ncols = n.x,
+            crs   = crs.string
+            );
+        raster::values(layer.temp) <- t(DF.temp);
+
+        list.layers <- list();
+        list.layers[[var.name]] <- layer.temp;
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        my.stack <- raster::stack(x = list.layers);
+        names(my.stack) <- names(list.layers);
+
+        my.stack <- raster::setExtent(
+            x   = my.stack,
+            ext = raster::extent(matrix.extent)
+            );
+
+        my.rast <- terra::rast(x = my.stack);
+
+        cat("\nclass(my.rast)\n");
+        print( class(my.rast)   );
+
+        cat("\nnames(my.rast)\n");
+        print( names(my.rast)   );
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        tiff.file.output <- file.path(
+            output.directory,
+            paste0(date.string,"-",var.name,".tiff")
+            );
+
+        # raster::writeRaster(x = my.stack, filename = tiff.file.output);
+        terra::writeRaster(x = my.rast, filename = tiff.file.output);
+
+        ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+        remove(list = c(
+            'layer.temp','DF.temp',
+            'my.stack','my.rast','tiff.file.output','list.layers'
+            ));
+        gc();
+
+        }
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     cat(paste0("\n",thisFunctionName,"() quits."));
