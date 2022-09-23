@@ -21,8 +21,7 @@ persist.as.GeoTIFF <- function(
     ncdf4.input.object <- ncdf4::nc_open(ncdf4.input.file);
 
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # for ( row.index in seq(1,nrow(DF.dates)) ) {
-    for ( row.index in seq(1,1) ) {
+    for ( row.index in seq(1,nrow(DF.dates)) ) {
 
         temp.date.index   <- DF.dates[row.index,'date.index'  ];
         temp.date.string  <- DF.dates[row.index,'date.string' ];
@@ -69,21 +68,6 @@ persist.as.GeoTIFF_inner <- function(
     require(raster);
     require(terra);
 
-    ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # cat("\nparquet.file = ",parquet.file,"\n");
-    # cat("\nnc.file = ",     nc.file,     "\n");
-    #
-    # ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-    # DF.scores <- arrow::read_parquet(parquet.file);
-    #
-    # # note the negative sign for latitude in the following order statement
-    # # this is due to the fact that the values in the latitude dimension in
-    # # an ncdf4 object is in desecending order.
-    # DF.scores <- DF.scores[order(DF.scores$lon,-DF.scores$lat),];
-    #
-    # colnames.fpc.scores <- grep(x = colnames(DF.scores), pattern = "^fpc_", value = TRUE);
-    # n.fpc.scores <- length(colnames.fpc.scores);
-    #
     ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
     n.x <- ncdf4.input.object[['dim']][['x']][['len']];
     n.y <- ncdf4.input.object[['dim']][['y']][['len']];
