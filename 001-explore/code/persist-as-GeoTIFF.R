@@ -128,11 +128,11 @@ persist.as.GeoTIFF_inner <- function(
 
         my.rast <- terra::rast(x = my.stack);
 
-        cat("\nclass(my.rast)\n");
-        print( class(my.rast)   );
-
-        cat("\nnames(my.rast)\n");
-        print( names(my.rast)   );
+        # cat("\nclass(my.rast)\n");
+        # print( class(my.rast)   );
+        #
+        # cat("\nnames(my.rast)\n");
+        # print( names(my.rast)   );
 
         ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
         tiff.file.output <- file.path(
