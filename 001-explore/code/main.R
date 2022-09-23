@@ -135,41 +135,41 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# verify.ncdf4.object(
-#     ncdf4.input            = ncdf4.aridity,
-#     dir.aridity            = dir.aridity,
-#     DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
-#     DF.dates               = DF.dates,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     DF.metadata            = data.frame(
-#         varid     = c('deficit',          'stress'          ),
-#         directory = c('Water_Deficit_TXT','Water_Stress_TXT')
-#         )
-#     );
+verify.ncdf4.object(
+    ncdf4.input            = ncdf4.aridity,
+    dir.aridity            = dir.aridity,
+    DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
+    DF.dates               = DF.dates,
+    get.coordinate.indexes = get.coordinate.indexes,
+    DF.metadata            = data.frame(
+        varid     = c('deficit',          'stress'          ),
+        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+        )
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-for ( temp.data.set in data.sets ) {
-    cat("\n### processing (Sen Slope):",temp.data.set,"\n");
-    temp.stem <- stringr::str_extract(string = tolower(temp.data.set), pattern = "(deficit|stress)");
-    SF.stats <- getData.ts.stats(
-        SF.coordinates = SF.coordinates,
-        CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-        parquet.output = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
-        );
-    remove(list = c("SF.stats"));
-    }
-
-for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
-    cat("\n### processing (linear, ARIMA):",temp.folder,"\n");
-    temp.stem <- stringr::str_extract(string = tolower(temp.folder), pattern = "(deficit|stress)");
-    getData.linear.arima(
-        SF.coordinates = SF.coordinates,
-        directory      = file.path(dir.aridity,temp.folder),
-        parquet.linear = paste0("SF-ZP-",temp.stem,"-linear.parquet"),
-        parquet.arima  = paste0("SF-ZP-",temp.stem,"-arima.parquet")
-        );
-    }
-
+# for ( temp.data.set in data.sets ) {
+#     cat("\n### processing (Sen Slope):",temp.data.set,"\n");
+#     temp.stem <- stringr::str_extract(string = tolower(temp.data.set), pattern = "(deficit|stress)");
+#     SF.stats <- getData.ts.stats(
+#         SF.coordinates = SF.coordinates,
+#         CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
+#         parquet.output = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
+#         );
+#     remove(list = c("SF.stats"));
+#     }
+#
+# for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
+#     cat("\n### processing (linear, ARIMA):",temp.folder,"\n");
+#     temp.stem <- stringr::str_extract(string = tolower(temp.folder), pattern = "(deficit|stress)");
+#     getData.linear.arima(
+#         SF.coordinates = SF.coordinates,
+#         directory      = file.path(dir.aridity,temp.folder),
+#         parquet.linear = paste0("SF-ZP-",temp.stem,"-linear.parquet"),
+#         parquet.arima  = paste0("SF-ZP-",temp.stem,"-arima.parquet")
+#         );
+#     }
+#
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # generate.geo.heatmaps(
 #     data.sets      = data.sets,
@@ -197,15 +197,15 @@ for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
 #     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-test_pixelwise.time.series.analysis(
-    data.sets              = data.sets,
-    DF.dates               = DF.dates,
-    SF.coordinates         = SF.coordinates,
-    ncdf4.aridity          = ncdf4.aridity,
-    FILE.coords.to.indexes = RData.get.integer.coordinate.indexes,
-    FUN.pixelwise          = pixelwise.time.series.analysis
-    );
-
+# test_pixelwise.time.series.analysis(
+#     data.sets              = data.sets,
+#     DF.dates               = DF.dates,
+#     SF.coordinates         = SF.coordinates,
+#     ncdf4.aridity          = ncdf4.aridity,
+#     FILE.coords.to.indexes = RData.get.integer.coordinate.indexes,
+#     FUN.pixelwise          = pixelwise.time.series.analysis
+#     );
+#
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 # check.statistcs(
 #     varid          = "deficit",
