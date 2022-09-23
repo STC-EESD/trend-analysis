@@ -138,17 +138,17 @@ getData.aridity(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# verify.ncdf4.object(
-#     ncdf4.input            = ncdf4.aridity,
-#     dir.aridity            = dir.aridity,
-#     DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
-#     DF.dates               = DF.dates,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     DF.metadata            = data.frame(
-#         varid     = c('deficit',          'stress'          ),
-#         directory = c('Water_Deficit_TXT','Water_Stress_TXT')
-#         )
-#     );
+verify.ncdf4.object(
+    ncdf4.input            = ncdf4.aridity,
+    dir.aridity            = dir.aridity,
+    DF.coordinates         = sf::st_drop_geometry(SF.coordinates),
+    DF.dates               = DF.dates,
+    get.coordinate.indexes = get.coordinate.indexes,
+    DF.metadata            = data.frame(
+        varid     = c('deficit',          'stress'          ),
+        directory = c('Water_Deficit_TXT','Water_Stress_TXT')
+        )
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 persist.as.GeoTIFF(
