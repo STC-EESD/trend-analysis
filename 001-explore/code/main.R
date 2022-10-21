@@ -157,78 +157,78 @@ persist.as.GeoTIFF(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# for ( temp.data.set in data.sets ) {
-#     cat("\n### processing (Sen Slope):",temp.data.set,"\n");
-#     temp.stem <- stringr::str_extract(string = tolower(temp.data.set), pattern = "(deficit|stress)");
-#     SF.stats <- getData.ts.stats(
-#         SF.coordinates = SF.coordinates,
-#         CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
-#         parquet.output = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
-#         );
-#     remove(list = c("SF.stats"));
-#     }
-#
-# for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
-#     cat("\n### processing (linear, ARIMA):",temp.folder,"\n");
-#     temp.stem <- stringr::str_extract(string = tolower(temp.folder), pattern = "(deficit|stress)");
-#     getData.linear.arima(
-#         SF.coordinates = SF.coordinates,
-#         directory      = file.path(dir.aridity,temp.folder),
-#         parquet.linear = paste0("SF-ZP-",temp.stem,"-linear.parquet"),
-#         parquet.arima  = paste0("SF-ZP-",temp.stem,"-arima.parquet")
-#         );
-#     }
-#
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# generate.geo.heatmaps(
-#     data.sets      = data.sets,
-#     SF.coordinates = SF.coordinates,
-#     dir.aridity    = dir.aridity
-#     );
-#
-# generate.timeplots(
-#     data.sets              = data.sets,
-#     ncdf4.input            = ncdf4.aridity,
-#     get.coordinate.indexes = get.coordinate.indexes,
-#     SF.coordinates         = SF.coordinates,
-#     threshold.top          = 3.75,
-#     threshold.zero         = 1e-2,
-#     threshold.bottom       = -10
-#     );
+for ( temp.data.set in data.sets ) {
+    cat("\n### processing (Sen Slope):",temp.data.set,"\n");
+    temp.stem <- stringr::str_extract(string = tolower(temp.data.set), pattern = "(deficit|stress)");
+    SF.stats <- getData.ts.stats(
+        SF.coordinates = SF.coordinates,
+        CSV.ts.stats   = file.path(dir.aridity,"From_Zdenek",paste0(temp.data.set,".csv")),
+        parquet.output = paste0("SF-ZP-",temp.stem,"-SenSlope.parquet")
+        );
+    remove(list = c("SF.stats"));
+    }
+
+for ( temp.folder in c('Water_Deficit_Xls','Water_Stress_Xls') ) {
+    cat("\n### processing (linear, ARIMA):",temp.folder,"\n");
+    temp.stem <- stringr::str_extract(string = tolower(temp.folder), pattern = "(deficit|stress)");
+    getData.linear.arima(
+        SF.coordinates = SF.coordinates,
+        directory      = file.path(dir.aridity,temp.folder),
+        parquet.linear = paste0("SF-ZP-",temp.stem,"-linear.parquet"),
+        parquet.arima  = paste0("SF-ZP-",temp.stem,"-arima.parquet")
+        );
+    }
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# explore.time.series(
-#     data.sets              = data.sets,
-#     DF.dates               = DF.dates,
-#     SF.coordinates         = SF.coordinates,
-#     ncdf4.aridity          = ncdf4.aridity,
-#     FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
-#     );
+generate.geo.heatmaps(
+    data.sets      = data.sets,
+    SF.coordinates = SF.coordinates,
+    dir.aridity    = dir.aridity
+    );
+
+generate.timeplots(
+    data.sets              = data.sets,
+    ncdf4.input            = ncdf4.aridity,
+    get.coordinate.indexes = get.coordinate.indexes,
+    SF.coordinates         = SF.coordinates,
+    threshold.top          = 3.75,
+    threshold.zero         = 1e-2,
+    threshold.bottom       = -10
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# test_pixelwise.time.series.analysis(
-#     data.sets              = data.sets,
-#     DF.dates               = DF.dates,
-#     SF.coordinates         = SF.coordinates,
-#     ncdf4.aridity          = ncdf4.aridity,
-#     FILE.coords.to.indexes = RData.get.integer.coordinate.indexes,
-#     FUN.pixelwise          = pixelwise.time.series.analysis
-#     );
-#
-### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-# check.statistcs(
-#     varid          = "deficit",
-#     SF.coordinates = SF.coordinates,
-#     ncdf4.aridity  = ncdf4.aridity,
-#     FUN.pixelwise  = pixelwise.time.series.analysis
-#     );
+explore.time.series(
+    data.sets              = data.sets,
+    DF.dates               = DF.dates,
+    SF.coordinates         = SF.coordinates,
+    ncdf4.aridity          = ncdf4.aridity,
+    FILE.coords.to.indexes = "get-integer-coordinate-indexes.RData"
+    );
 
-# check.statistcs(
-#     varid          = "stress",
-#     SF.coordinates = SF.coordinates,
-#     ncdf4.aridity  = ncdf4.aridity,
-#     FUN.pixelwise  = pixelwise.time.series.analysis
-#     );
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+test_pixelwise.time.series.analysis(
+    data.sets              = data.sets,
+    DF.dates               = DF.dates,
+    SF.coordinates         = SF.coordinates,
+    ncdf4.aridity          = ncdf4.aridity,
+    FILE.coords.to.indexes = RData.get.integer.coordinate.indexes,
+    FUN.pixelwise          = pixelwise.time.series.analysis
+    );
+
+### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
+check.statistcs(
+    varid          = "deficit",
+    SF.coordinates = SF.coordinates,
+    ncdf4.aridity  = ncdf4.aridity,
+    FUN.pixelwise  = pixelwise.time.series.analysis
+    );
+
+check.statistcs(
+    varid          = "stress",
+    SF.coordinates = SF.coordinates,
+    ncdf4.aridity  = ncdf4.aridity,
+    FUN.pixelwise  = pixelwise.time.series.analysis
+    );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 
