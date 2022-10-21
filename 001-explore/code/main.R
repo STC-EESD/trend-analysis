@@ -206,14 +206,14 @@ explore.time.series(
     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
-test_pixelwise.time.series.analysis(
-    data.sets              = data.sets,
-    DF.dates               = DF.dates,
-    SF.coordinates         = SF.coordinates,
-    ncdf4.aridity          = ncdf4.aridity,
-    FILE.coords.to.indexes = RData.get.integer.coordinate.indexes,
-    FUN.pixelwise          = pixelwise.time.series.analysis
-    );
+# test_pixelwise.time.series.analysis(
+#     data.sets              = data.sets,
+#     DF.dates               = DF.dates,
+#     SF.coordinates         = SF.coordinates,
+#     ncdf4.aridity          = ncdf4.aridity,
+#     FILE.coords.to.indexes = RData.get.integer.coordinate.indexes,
+#     FUN.pixelwise          = pixelwise.time.series.analysis
+#     );
 
 ### ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ###
 check.statistcs(
